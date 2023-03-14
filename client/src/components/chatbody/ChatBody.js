@@ -6,6 +6,9 @@ import Constants from "../../lib/constants";
 import SocketActions from "../../lib/socketActions";
 import CommonUtil from "../../util/commonUtil";
 import "./chatBodyStyle.css";
+import Modal from "react-bootstrap/Modal";
+
+import "bootstrap/dist/css/bootstrap.min.css";
 
 let socket = new WebSocket(
   ServerUrl.WS_BASE_URL + `ws/users/${CommonUtil.getUserId()}/chat/`
@@ -17,7 +20,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
   const [inputMessage, setInputMessage] = useState("");
   const [messages, setMessages] = useState({});
   const [typing, setTyping] = useState(false);
-
+  const [sentiment, setSentiment] = useState('');
   const fetchChatMessage = async () => {
     const currentChatId = CommonUtil.getActiveChatId(match);
     if (currentChatId) {
@@ -89,6 +92,11 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
       })
     );
   };
+  const getSentimentVal = (input) => {
+    setSentiment(input);
+
+    console.log(input);
+  }
 
   const chatMessageTypingHandler = (event) => {
     if (event.keyCode !== Constants.ENTER_KEY_CODE) {
@@ -112,6 +120,30 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
       <div className="py-2 px-4 border-bottom d-none d-lg-block">
         <div className="d-flex align-items-center py-1">
           <div className="position-relative">
+
+
+
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    {<div>
+                      <p>{sentiment}</p>
+                    
+                    </div>}
+                  </div>
+                  <div class="modal-footer">
+                  
+                    <button type="button" class="btn btn-primary">close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <img
               src={currentChattingMember?.image}
               className="rounded-circle mr-1"
@@ -126,6 +158,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
         </div>
       </div>
       <div className="position-relative">
+
         <div
           id="chat-message-container"
           className="chat-messages pl-4 pt-4 pr-4 pb-1 d-flex flex-column-reverse"
@@ -139,6 +172,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
               </div>
             </div>
           )}
+
           {messages?.results?.map((message, index) => (
             <div key={index} className={getChatMessageClassName(message.user)}>
               <div>
@@ -153,10 +187,17 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
                   {CommonUtil.getTimeFromDate(message.timestamp)}
                 </div>
               </div>
-              <div className="flex-shrink-1 bg-light ml-1 rounded py-2 px-3 mr-3">
-                <div className="font-weight-bold mb-1">{message.userName}</div>
+              <div style={{ backgroundColor: message?.sentiment === "positive" ? '#BEF441' : message?.sentiment === "negative" ? "#F36464" : "#CCCCCC" }} className="flex-shrink-1 ml-1 rounded py-2 px-3 mr-3">
+                <div className="font-weight-bold mb-1">{message.userName}
+                  <button type="button" onClick={() => getSentimentVal(message?.emotion)} data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    X
+                  </button>
+
+
+                </div>
                 {message.message}
               </div>
+
             </div>
           ))}
         </div>

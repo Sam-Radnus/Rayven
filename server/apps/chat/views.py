@@ -47,6 +47,6 @@ def sentiment_analysis(msg):
             'sentiment_score': sentiment_score,
             'sentiment': sentiment
         }
-        print(response)
+        return response
     else:
         print('error')
