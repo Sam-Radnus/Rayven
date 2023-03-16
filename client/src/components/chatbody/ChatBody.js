@@ -21,6 +21,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
   const [messages, setMessages] = useState({});
   const [typing, setTyping] = useState(false);
   const [sentiment, setSentiment] = useState('');
+  const [visible,setVisible]=useState('');
   const fetchChatMessage = async () => {
     const currentChatId = CommonUtil.getActiveChatId(match);
     if (currentChatId) {
@@ -44,7 +45,40 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
       ? "chat-message-right pb-3"
       : "chat-message-left pb-3";
   };
+  const [snippet, setSnippet] = useState('');
 
+  
+function Snippet({ text }) {
+  const handleCopyClick = () => {
+    onCopyClick(text);
+
+  };
+  const onCopyClick=(text)=>{
+     setInputMessage(text);
+     const updatedSnippets = snippets.filter((snippet) => snippet !== text);
+     setSnippets(updatedSnippets);
+  }
+  return (
+    <div >
+      <button style={{position:'relative',zIndex:'999',height:'fit-content',width:'fit-content',padding:'5px',borderWidth:'2px !important',backgroundColor:'white',border:'solid',borderRadius:'5px',borderColor:'grey'}} onClick={handleCopyClick}>{text}</button>
+    </div>
+  );
+}
+ const [snippets, setSnippets] = useState([]);
+ const addSnippet = () => {
+  console.log(inputMessage)
+  handleSnippetClick(inputMessage);
+  setInputMessage('');
+  setSnippet('');
+};
+  const handleSnippetClick = (snippet) => {
+    setSnippets([...snippets, snippet]);
+  };
+
+  const handleCopyClick = (text) => {
+    // copy text to input
+    console.log(`Copying "${text}" to input...`);
+  };
   socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
     const chatId = CommonUtil.getActiveChatId(match);
@@ -117,12 +151,18 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
 
   return (
     <div className="col-12 col-sm-8 col-md-8 col-lg-8 col-xl-10 pl-0 pr-0">
+        <div style={{position:'absolute',top:'2%',right:'2%',display:'flex',gap:'10px'}} >
+     
+      {snippets.map((snippet, index) => (
+        <Snippet key={index} text={snippet} onClick={handleCopyClick} />
+      ))}
+    </div> 
       <div className="py-2 px-4 border-bottom d-none d-lg-block">
         <div className="d-flex align-items-center py-1">
           <div className="position-relative">
 
 
-
+          
             <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
               <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
@@ -221,6 +261,13 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
             >
               Send
             </button>
+            <div
+              onClick={addSnippet}
+              className="btn btn-outline-warning"
+            >
+              Snip it
+            </div>
+          
           </div>
         </form>
       </div>
