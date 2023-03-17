@@ -7,9 +7,8 @@ import SocketActions from "../../lib/socketActions";
 import CommonUtil from "../../util/commonUtil";
 import "./chatBodyStyle.css";
 import Modal from "react-bootstrap/Modal";
-
 import "bootstrap/dist/css/bootstrap.min.css";
-
+import Chart from "./Chart";
 let socket = new WebSocket(
   ServerUrl.WS_BASE_URL + `ws/users/${CommonUtil.getUserId()}/chat/`
 );
@@ -20,8 +19,8 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
   const [inputMessage, setInputMessage] = useState("");
   const [messages, setMessages] = useState({});
   const [typing, setTyping] = useState(false);
-  const [sentiment, setSentiment] = useState('');
   const [visible,setVisible]=useState('');
+  
   const fetchChatMessage = async () => {
     const currentChatId = CommonUtil.getActiveChatId(match);
     if (currentChatId) {
@@ -34,7 +33,12 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
       setMessages(chatMessages);
     }
   };
-
+  const [sentiment, setSentiment] = useState({
+    neg: 0.195,
+    neu: 0.579,
+    pos: 0.226,
+    compound: -0.1068,
+  });
   useEffect(() => {
     fetchChatMessage();
   }, [CommonUtil.getActiveChatId(match)]);
@@ -126,9 +130,14 @@ function Snippet({ text }) {
       })
     );
   };
-  const getSentimentVal = (input) => {
-    setSentiment(input);
-
+  const getSentimentVal = async(input) => {
+    console.log(input);
+    const data=await JSON.parse(input);
+    console.log(1);
+    console.log(data);
+    
+    setSentiment(data);
+    console.log(2);
     console.log(input);
   }
 
@@ -167,13 +176,13 @@ function Snippet({ text }) {
               <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Sentiment Analysis</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
-                  <div class="modal-body">
+                  <div  class="modal-body">
                     {<div>
-                      <p>{sentiment}</p>
                     
+                    <Chart emotions={sentiment} />
                     </div>}
                   </div>
                   <div class="modal-footer">
