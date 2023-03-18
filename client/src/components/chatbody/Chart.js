@@ -12,7 +12,7 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
   return (
-    <text x={x} y={y} fill="black" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+    <text x={x} y={y} fill="white"  textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
       {label}:{`${(percent * 100).toFixed(0)}%`}
     </text>
   );
@@ -36,6 +36,7 @@ const Chart = (props) => {
           cy="50%"
           labelLine={false}
           label={renderCustomizedLabel}
+          
           outerRadius={80}
           fill="#8884d8"
           dataKey="value"

@@ -1,3 +1,8 @@
+*{
+  color:white !important;
+ 
+}
+
 #chat-message-input {
   margin-right: -5px;
 }
@@ -24,7 +29,7 @@
 
 /* typing bubble */
 .chat-bubble {
-  background-color: #fff3cd;
+  background-color: #9D77EA;
   padding: 16px 28px;
   -webkit-border-radius: 20px;
   -webkit-border-bottom-left-radius: 2px;
@@ -41,7 +46,7 @@
 }
 .typing .dot {
   animation: mercuryTypingAnimation 1s infinite ease-in-out;
-  background-color: #fff0c0;
+  background-color: #9D77EA;
   border-radius: 50%;
   height: 7px;
   margin-right: 4px;
@@ -75,4 +80,19 @@
     transform: translateY(0px);
     background-color: #dac587;
   }
+}
+input[id="chat-message-input"]{
+  background-color: #344153;
+  width:40vw !important;
+  border-color:#344153;
+  border-radius: 15px;
+}
+input[id="chat-message-input"]::placeholder {
+  color: white;
+}
+input[id="chat-message-input"]:focus {
+  outline: none;
+  background-color: #344153;
+  border-color:#9ea4ad;
+  color:white;
 }
