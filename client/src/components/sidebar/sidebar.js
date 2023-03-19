@@ -106,12 +106,14 @@ const Sidebar = (props) => {
       <div className="d-none d-md-block">
         <button
           onClick={addPeopleClickHandler}
-          className="btn btn-outline-warning btn-block my-1 mt-4"
+          className="btn"
+          id="add_people"
+          
         >
           Add People
         </button>
       </div>
-      <div className="user-list-container">
+      <div className="user-list-container mt-3">
         {getChatListWithOnlineUser()?.map((chatUser) => {
           return (
             <Link
@@ -132,7 +134,7 @@ const Sidebar = (props) => {
                   height="40"
                 />
                 <div className="flex-grow-1 ml-3">
-                  {chatUser.name}
+                  <b>{chatUser.name}</b>
                   <div className="small">
                     {chatUser.isOnline ? (
                       <>
@@ -154,7 +156,8 @@ const Sidebar = (props) => {
       </div>
       <button
         onClick={logoutClickHandler}
-        className="btn btn-outline-danger btn-block mt-1"
+        id="logout"
+        className="btn"
       >
         Log Out
       </button>

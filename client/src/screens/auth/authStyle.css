@@ -14,6 +14,7 @@
   text-align: center;
   margin-top: 0px;
   margin-bottom: 25px;
+  font-weight: bold;
   color: #999999;
 }
 .authFieldContainer {
@@ -49,4 +50,29 @@
   color: #856404;
   background-color: #fff3cd;
   border-color: #ffeeba;
+}
+
+input[class="authField"]{
+  background-color: #344153;
+  padding-left:10px;
+  border-color:#344153;
+  border-radius: 15px;
+}
+input[class="authField"]::placeholder {
+  color: white;
+}
+input[class="authField"]:focus {
+  outline: none;
+  background-color: #344153;
+  border-color:#9ea4ad;
+  color:white;
+}
+button[id="login"]{
+  background-color:#9D77EA;
+  width:19.5vw;
+  border-radius: 12px;
+  font-weight: bold;
+}
+button[id="login"]:hover{
+  background-color: #cc1212;
 }

@@ -48,7 +48,7 @@ const LoginScreen = ({ location }) => {
     <div id="authFormContainer">
       <div id="authForm">
         {getLoginMessage()}
-        <h2 id="authTitle">Login</h2>
+        <h2 id="authTitle">Login to your Account</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="authFieldContainer">
             <input
@@ -73,13 +73,13 @@ const LoginScreen = ({ location }) => {
             )}
           </div>
           <br />
-          <button className="btn btn-outline-warning btn-block" type="submit">
+          <button id="login" className="btn" type="submit">
             Login
           </button>
         </form>
-        <p id="authFormFooter">
+        <p id="authFormFooter" className="mt-3">
           Don't have any account! <Link to="/signup">Click here</Link> to
-          singup.
+          Signup.
         </p>
       </div>
     </div>

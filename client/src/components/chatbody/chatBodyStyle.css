@@ -96,3 +96,7 @@ input[id="chat-message-input"]:focus {
   border-color:#9ea4ad;
   color:white;
 }
+div[id="tools"]{
+  border-top-left-radius:5px ;
+  border-top-right-radius:5px ;
+}

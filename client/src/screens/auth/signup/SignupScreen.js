@@ -77,7 +77,8 @@ const SignupScreen = ({ history }) => {
             )}
           </div>
           <div className="custom-file">
-            <input
+            <input 
+              style={{backgroundColor:'#344153'}}
               type="file"
               name="image"
               id="validatedCustomFile"
@@ -122,7 +123,7 @@ const SignupScreen = ({ history }) => {
             )}
           </div>
           <br />
-          <button className="btn btn-outline-warning btn-block" type="submit">
+          <button id="login" className="btn" type="submit">
             Sign Up
           </button>
         </form>

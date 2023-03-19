@@ -18,3 +18,22 @@
 .active-chat {
   background-color: #9D77EA;
 }
+button[id="add_people"]{
+  margin-top:10px;
+  margin-left:60px;
+  background-color:#9D77EA;
+  font-weight: bold;
+}
+button[id="add_people"]:hover{
+  background-color: #cc1212;
+}
+button[id="logout"]{
+  margin-top:10px;
+  margin-left:60px;
+  background-color: #cc1212;
+  font-weight: bold;
+}
+button[id="logout"]:hover{
+ 
+  background-color:#9D77EA;
+}
