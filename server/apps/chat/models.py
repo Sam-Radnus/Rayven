@@ -15,7 +15,7 @@ class ChatMessage(models.Model):
     chat = models.ForeignKey(ChatRoom, on_delete=models.SET_NULL, null=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     message = models.CharField(max_length=255)
-    image = models.ImageField(upload_to='chat_images', blank=True, null=True)
+    image_data = models.ImageField(upload_to='chat_images', blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

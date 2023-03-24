@@ -141,7 +141,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 AUTH_USER_MODEL = 'user.User'
 STATIC_URL = '/static/'
-MEDIA_URL = 'media/'
+MEDIA_URL = '/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 # Default primary key field type

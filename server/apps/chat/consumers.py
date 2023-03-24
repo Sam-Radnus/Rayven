@@ -4,11 +4,18 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from apps.chat.models import ChatRoom, ChatMessage
 from apps.user.models import User, OnlineUser
 from .views import sentiment_analysis
+from PIL import Image
 import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 import requests
+from django.conf import settings
+import os
+from asgiref.sync import sync_to_async
+import base64
+from io import BytesIO
+from django.db import transaction
 from text2emotion import get_emotion
-
+import asyncio
 class ChatConsumer(AsyncWebsocketConsumer):
     def getUser(self, userId):
         return User.objects.get(id=userId)
@@ -29,45 +36,81 @@ class ChatConsumer(AsyncWebsocketConsumer):
         except:
             pass
 
+    @database_sync_to_async  
+    def save_chat_message_async(chat_message):
+        chat_message.save()
+
     def saveMessage(self, message, userId, roomId):
-        report = sentiment_analysis(message)
         userObj = User.objects.get(id=userId)
         chatObj = ChatRoom.objects.get(roomId=roomId)
-        chatMessageObj = ChatMessage.objects.create(
-            chat=chatObj, user=userObj, message=message
-        )
-        print(report)
-        
-            #payload=message.encode("utf-8")
-            #headers={
-            #  "apikey": "titFS89ss6QyH7SjN1arUJpcgZCFoEWL"
-            #}
-            #response = requests.request("POST","https://api.apilayer.com/text_to_emotion",headers=headers,data=payload)
-            #status_code = response.status_code
-            #result = response.text
-            #print(result)
-            #print(status_code)
-        text = "I am feeling happy today"
-        emotion = get_emotion(text)
-        print(emotion)
-        sia = SentimentIntensityAnalyzer()
-
-# Analyze the sentiment of a sentence
-        sentence = message
-        scores = sia.polarity_scores(sentence)
-        scores_str=json.dumps(scores)
-        print(scores)
-        return {
+        image_data=None
+        img_name=None
+        img_path=None
+        chatMessageObj = None 
+        imgdata=None
+        # Check if the message is an image message
+        if 'image' in message:
+            image_data = message['image']
+            try: 
+                print("0")
+                image_binary_data = base64.b64decode(image_data.split(',')[1])
+                print("1")
+                
+                # Load the binary data as an image using BytesIO
+                img = Image.open(BytesIO(image_binary_data))
+                print("2")
+                
+                chatMessageObj = ChatMessage.objects.create(
+                    chat=chatObj,
+                    user=userObj,
+                )
+                
+                # Use the chat message ID as the image name
+                img_name = f"{chatMessageObj.id}.jpg"  
+                print("4")
+                img_path = os.path.join(settings.MEDIA_ROOT, 'chat_images', img_name)
+                print("img_path",img_path)
+                img.save(img_path)
+                print("5")
+            except Exception as e:
+                print('Error:',e)
+    
+            # Set the image URL to the path relative to the media folder
+            image_url = f"{settings.MEDIA_URL}chat_images/{img_name}"
+            #image_url = f"{settings.MEDIA_ROOT}chat_images/{img_name}"
+            print("6")
+            print(image_url)
+            # Update the ChatMessage object with the image data
+            print('img_data_0',image_url)
+            chatMessageObj.image_data = image_url
+            print("image_url",chatMessageObj.image_data.url)
+            self.save_chat_message_async(chatMessageObj)
+            chatMessageObj = ChatMessage.objects.create(
+                chat=chatObj, user=userObj, image_data=chatMessageObj.image_data.url
+            )  
+            print(chatMessageObj)
+            sync_to_async(chatMessageObj.save)()
+            print("7")
+        else:
+            # Create a new ChatMessage object with the text message
+            print('No Image')
+            chatMessageObj = ChatMessage.objects.create(
+                chat=chatObj, user=userObj, message=message['message']
+            )      
+            #await self.save_chat_message_async(chatMessageObj)
+        data={
             'action': 'message',
             'user': userId,
             'roomId': roomId,
-            'message': message,
+            'message': chatMessageObj.message,
+            'image_data': 'http://127.0.0.1:8000/'+chatMessageObj.image_data.url if chatMessageObj.image_data.url!=None else None,
             'userImage': userObj.image.url,
             'userName': userObj.first_name + " " + userObj.last_name,
             'timestamp': str(chatMessageObj.timestamp),
-            'sentiment':report['sentiment'],
-            'emotion':scores_str
         }
+        print(data)
+        # Return the chat message data
+        return data
  #   nltk.downloader.Downloader().uninstall()
 #nltk.download('vader_lexicon')
 
@@ -114,11 +157,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         chatMessage = {}
         if action == 'message':
-            message = text_data_json['message']
-
-            userId = text_data_json['user']
-            chatMessage = await database_sync_to_async(
-                self.saveMessage
+            if 'message' in text_data_json:
+                message = text_data_json
+                
+                userId = text_data_json['user']
+                chatMessage = await database_sync_to_async(
+                    self.saveMessage
+                )(message, userId, roomId)
+            else:
+            # For image messages
+                image = text_data_json['image']
+                message=text_data_json
+                userId = text_data_json['user']
+                chatMessage = await database_sync_to_async(
+                    self.saveMessage
             )(message, userId, roomId)
         elif action == 'typing':
             chatMessage = text_data_json
@@ -133,3 +185,4 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def chat_message(self, event):
         message = event['message']
         await self.send(text_data=json.dumps(message))
+    
