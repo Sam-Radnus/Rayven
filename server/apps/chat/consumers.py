@@ -90,6 +90,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )  
             print(chatMessageObj)
             sync_to_async(chatMessageObj.save)()
+            imgdata=chatMessageObj.image_data.url
             print("7")
         else:
             # Create a new ChatMessage object with the text message
@@ -103,10 +104,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'user': userId,
             'roomId': roomId,
             'message': chatMessageObj.message,
-            'image_data': 'http://127.0.0.1:8000/'+chatMessageObj.image_data.url if chatMessageObj.image_data.url!=None else None,
+            'image_data': 'http://127.0.0.1:8000/'+imgdata if imgdata!=None else None,
             'userImage': userObj.image.url,
             'userName': userObj.first_name + " " + userObj.last_name,
             'timestamp': str(chatMessageObj.timestamp),
+            
         }
         print(data)
         # Return the chat message data
