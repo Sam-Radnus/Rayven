@@ -9,6 +9,7 @@ import "./chatBodyStyle.css";
 import Modal from "react-bootstrap/Modal";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Chart from "./Chart";
+import axios from 'axios';
 let socket = new WebSocket(
   ServerUrl.WS_BASE_URL + `ws/users/${CommonUtil.getUserId()}/chat/`
 );
@@ -77,7 +78,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
 
     return (
       <div >
-        <button style={{ position: 'relative', zIndex: '999', height: 'fit-content', width: 'fit-content', padding: '5px', borderWidth: '2px !important', backgroundColor: 'white', border: 'solid', borderRadius: '5px', borderColor: 'grey' }} onClick={handleCopyClick}>{text}</button>
+        <button style={{ position: 'relative', zIndex: '999', height: 'fit-content', width: 'fit-content', padding: '5px', borderWidth: '2px !important', backgroundColor: '#18191B', border: 'solid', borderRadius: '5px', borderColor: 'grey' }} onClick={handleCopyClick}>{text}</button>
       </div>
     );
   }
@@ -192,13 +193,15 @@ const sendTypingSignal = (typing) => {
 };
 const getSentimentVal = async (input) => {
   console.log(input);
-  const data = await JSON.parse(input);
-  console.log(1);
-  console.log(data);
-
-  setSentiment(data);
-  console.log(2);
-  console.log(input);
+  try {
+    const data = { message: input };
+    const response = await axios.post("http://127.0.0.1:8000/api/v1/sentiment/", { 'message': input }
+    );
+    console.log(response.data.sentiment_scores);
+    setSentiment(response.data.sentiment_scores);
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 const chatMessageTypingHandler = (event) => {
@@ -252,7 +255,7 @@ function ImageModal(props) {
             </div>
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-danger" data-dismiss="modal" onClick={props.onClose}>Close</button>
+            <button type="button" className="btn btn-danger " data-dismiss="modal" onClick={props.onClose}>Close</button>
             <button type="button" className="btn ml-2" style={{ backgroundColor: '#9D77EA' }} disabled={!selectedImage} onClick={handleSendClick}>Send</button>
           </div>
         </div>
@@ -294,7 +297,7 @@ return (
                 </div>
                 <div class="modal-footer">
 
-                  <button type="button" style={{ backgroundColor: "#9D77EA" }} class="btn">close</button>
+                  <button type="button btn-close" style={{ backgroundColor: "#9D77EA" }} class="btn" data-bs-dismiss="modal" aria-label="Close">close</button>
                 </div>
               </div>
             </div>
@@ -330,6 +333,7 @@ return (
         )}
 
         {messages?.results?.map((message, index) => (
+         (message?.message || message?.image_data) && (
           <div key={index} className={getChatMessageClassName(message.user)}>
             <div>
               <img
@@ -344,12 +348,15 @@ return (
               </div>
             </div>
             <div style={{ backgroundColor: '#1C2A39' }} className="flex-shrink-1 ml-1 rounded py-2 px-3 mr-3">
+           
+           
               <div className="font-weight-bold mb-1">
                 {message.userName}
+                { message.message &&
                 <button
                   type="button"
                   style={{ backgroundColor: '#1C2A39', border: 'none' }}
-                  onClick={() => getSentimentVal(message?.emotion)}
+                  onClick={() => getSentimentVal(message.message)}
                   data-bs-toggle="modal"
                   data-bs-target="#exampleModal"
                 >
@@ -366,6 +373,7 @@ return (
                     />
                   </svg>
                 </button>
+              }
               </div>
               {message?.image_data ? (
 
@@ -374,9 +382,11 @@ return (
               ) : (
                 <div>{message.message}</div>
               )}
-              {console.log(message)}
+      
             </div>
           </div>
+         )
+        
         ))}
       </div>
     </div>
