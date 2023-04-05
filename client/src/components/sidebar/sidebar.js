@@ -16,6 +16,7 @@ const Sidebar = (props) => {
 
   const redirectUserToDefaultChatRoom = (chatUsers) => {
     if (props?.location?.pathname === AppPaths.HOME) {
+      
       props.setCurrentChattingMember(chatUsers[0]);
       props.history.push("/c/" + chatUsers[0].roomId);
     } else {
@@ -31,6 +32,7 @@ const Sidebar = (props) => {
       CommonUtil.getUserId()
     );
     const chatUsers = await ApiConnector.sendGetRequest(url);
+    console.log(chatUsers)
     const formatedChatUser = CommonUtil.getFormatedChatUser(
       chatUsers,
       props.onlineUserList

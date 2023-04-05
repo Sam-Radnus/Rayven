@@ -9,7 +9,7 @@ from apps.chat.models import ChatRoom
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
-		fields = ['id', 'image', 'first_name', 'last_name']
+		fields = ['id', 'image', 'first_name', 'last_name','is_shop_owner']
 
 class LoginSerializer(TokenObtainPairSerializer):
 	@classmethod

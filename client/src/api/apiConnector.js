@@ -14,6 +14,7 @@ const sendGetRequest = (relativeUrl) => {
 
 const sendPostRequest = (relativeUrl, requestBody, isAuth, isFormData) => {
   const url = ServerUrl.BASE_URL + relativeUrl;
+  console.log(url)
   let options = {
     method: HttpMethods.POST,
     body: requestBody,

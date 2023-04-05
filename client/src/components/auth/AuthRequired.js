@@ -1,5 +1,5 @@
 import React from "react";
-import { Redirect } from "react-router-dom";
+import { Navigate  } from "react-router-dom";
 import AppPaths from "../../lib/appPaths";
 import Constants from "../../lib/constants";
 import CookieUtil from "../../util/cookieUtil";
@@ -10,7 +10,7 @@ const AuthRequired = (Component) => {
       if (CookieUtil.getCookie(Constants.ACCESS_PROPERTY)) {
         return <Component {...this.props} />;
       }
-      return <Redirect to={AppPaths.LOGIN} />;
+      return <Navigate  to={AppPaths.LOGIN} />;
     }
   };
 };

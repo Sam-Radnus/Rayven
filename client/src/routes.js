@@ -1,21 +1,21 @@
-import React, { Component } from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomeScreen from "./screens/home/HomeScreen";
 import LoginScreen from "./screens/auth/login/LoginScreen";
 import SignupScreen from "./screens/auth/signup/SignupScreen";
 import AppPaths from "./lib/appPaths";
+import ProductsPage from "./components/chatbody/ProductsPage";
 
-export default class Routes extends Component {
-  render() {
-    return (
-      <Router>
-        <Switch>
-          <Route path={AppPaths.HOME} exact component={HomeScreen} />
-          <Route path={AppPaths.CHAT_ROOM} exact component={HomeScreen} />
-          <Route path={AppPaths.LOGIN} exact component={LoginScreen} />
-          <Route path={AppPaths.SIGN_UP} exact component={SignupScreen} />
-        </Switch>
-      </Router>
-    );
-  }
+export default function MyRoutes() {
+  return (
+    <Router>
+      <Routes>
+        <Route path={AppPaths.HOME} element={<HomeScreen />} />
+        <Route path={AppPaths.CHAT_ROOM} element={<HomeScreen />} />
+        <Route path={AppPaths.LOGIN} element={<LoginScreen />} />
+        <Route path={AppPaths.SIGN_UP} element={<SignupScreen />} />
+        <Route path={AppPaths.PRODUCTS_PAGE} element={<ProductsPage/>} />
+      </Routes>
+    </Router>
+  );
 }

@@ -77,8 +77,9 @@ const SignupScreen = ({ history }) => {
             )}
           </div>
           <div className="custom-file">
-            <input 
-              style={{backgroundColor:'#344153'}}
+            <input
+              className="bg-dark"
+              style={{ backgroundColor: '#344153' }}
               type="file"
               name="image"
               id="validatedCustomFile"
@@ -92,6 +93,13 @@ const SignupScreen = ({ history }) => {
             {errors.image && (
               <p className="requiredFieldError mt-2">This field is required</p>
             )}
+          </div>
+          <div className="authFieldContainer">
+            <select style={{color:'black'}} className="form-select form-select mb-3 bg-dark" aria-label=".form-select-lg example">
+              <option style={{color:'black'}} selected>Open this select menu</option>
+              <option value="1">Customer</option>
+              <option value="2">Shopowner</option>
+            </select>
           </div>
           <div className="authFieldContainer">
             <input

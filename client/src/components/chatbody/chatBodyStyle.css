@@ -100,3 +100,16 @@ div[id="tools"]{
   border-top-left-radius:5px ;
   border-top-right-radius:5px ;
 }
+input[type="text"]{
+  background-color:#18191B;
+}
+table{
+  border:solid;
+}
+table tr,table th,table td{
+  border:1px solid;
+}
+pre{
+  background-color: rgb(20, 32, 45);
+  padding:5px;
+}
