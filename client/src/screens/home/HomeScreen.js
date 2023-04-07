@@ -6,7 +6,7 @@ import Sidebar from "../../components/sidebar/sidebar";
 const HomeScreen = (props) => {
   const [currentChattingMember, setCurrentChattingMember] = useState({});
   const [onlineUserList, setOnlineUserList] = useState([]);
-
+  
   return (
     <main className="content">
       <div className="container-fluid p-0">
@@ -15,6 +15,7 @@ const HomeScreen = (props) => {
             <Sidebar
               setCurrentChattingMember={setCurrentChattingMember}
               onlineUserList={onlineUserList}
+              
               {...props}
             />
             <ChatBody

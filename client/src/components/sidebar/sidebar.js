@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./sidebar.css";
-import { Link } from "react-router-dom";
+import { Link ,useNavigate} from "react-router-dom";
 import CookieUtil from "../../util/cookieUtil";
 import AppPaths from "../../lib/appPaths";
 import ApiConnector from "../../api/apiConnector";
@@ -10,18 +10,23 @@ import Constants from "../../lib/constants";
 import Modal from "../modal/modal";
 
 const Sidebar = (props) => {
+  const navigate=useNavigate();
   const [chatUsers, setChatUsers] = useState([]); //sidebar users
   const [users, setUsers] = useState([]); //popup users
   const [isShowAddPeopleModal, setIsShowAddPeopleModal] = useState(false);
 
   const redirectUserToDefaultChatRoom = (chatUsers) => {
-    if (props?.location?.pathname === AppPaths.HOME) {
+    console.log(1);
+    if (window.location.pathname === AppPaths.HOME) {
       
       props.setCurrentChattingMember(chatUsers[0]);
-      props.history.push("/c/" + chatUsers[0].roomId);
+      navigate("/c/" + chatUsers[0].roomId);
     } else {
-      const activeChatId = CommonUtil.getActiveChatId(props.match);
+      
+      const activeChatId = window.location.pathname.slice(3,);
+      console.log(activeChatId)
       const chatUser = chatUsers.find((user) => user.roomId === activeChatId);
+      
       props.setCurrentChattingMember(chatUser);
     }
   };
@@ -81,7 +86,7 @@ const Sidebar = (props) => {
   };
 
   const getActiveChatClass = (roomId) => {
-    let activeChatId = CommonUtil.getActiveChatId(props.match);
+    let activeChatId = window.location.pathname.slice(3,)
     return roomId === activeChatId ? "active-chat" : "";
   };
 

@@ -38,16 +38,25 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
     console.log(currentChattingMember)
     setShowImageModal(false);
   }
+  useEffect(()=>{
+    console.log("Hey Ho")
+    console.log(window.location.pathname.slice(3,));
+    fetchChatMessage();
+  },[window.location.pathname])
   const fetchChatMessage = async () => {
-    const currentChatId = CommonUtil.getActiveChatId(match);
-    if (currentChatId) {
+
+    const currentChatId = CommonUtil.getActiveChatId(currentChattingMember);
+    console.log(currentChattingMember.roomId);
+    console.log(currentChatId);
+    if (true) {
       const url =
         ApiEndpoints.CHAT_MESSAGE_URL.replace(
           Constants.CHAT_ID_PLACE_HOLDER,
-          currentChatId
+          currentChattingMember.roomId
         ) + "?limit=20&offset=0";
       const chatMessages = await ApiConnector.sendGetRequest(url);
       setMessages(chatMessages);
+
     }
   };
   // const loadModel = async () => {
@@ -73,8 +82,9 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
   });
   useEffect(() => {
     fetchChatMessage();
-  }, [CommonUtil.getActiveChatId(match)]);
 
+  }, [window.location.pathname.slice(4,)]);
+   
   const loggedInUserId = CommonUtil.getUserId();
   const getChatMessageClassName = (userId) => {
     return loggedInUserId === userId
@@ -162,7 +172,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
   };
   socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
-    const chatId = CommonUtil.getActiveChatId(match);
+    const chatId = window.location.pathname.slice(3,);
     const userId = CommonUtil.getUserId();
     if (messages && messages?.results) console.log(messages?.results[0]?.message);
     if (chatId === data.roomId) {
@@ -204,7 +214,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
           action: SocketActions.MESSAGE,
           message: inputMessage,
           user: CommonUtil.getUserId(),
-          roomId: CommonUtil.getActiveChatId(match),
+          roomId: window.location.pathname.slice(3,),
         })
       );
     } else {
@@ -221,7 +231,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
             action: SocketActions.MESSAGE,
             image: imageBase64,
             user: CommonUtil.getUserId(),
-            roomId: CommonUtil.getActiveChatId(match),
+            roomId: window.location.pathname.slice(3,),
           })
         );
       };
@@ -245,7 +255,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
           action: SocketActions.MESSAGE,
           message: text,
           user: CommonUtil.getUserId(),
-          roomId: CommonUtil.getActiveChatId(match),
+          roomId:window.location.pathname.slice(3,),
         })
       );
     }
@@ -257,7 +267,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
         action: SocketActions.TYPING,
         typing: typing,
         user: CommonUtil.getUserId(),
-        roomId: CommonUtil.getActiveChatId(match),
+        roomId: window.location.pathname.slice(3,),
       })
     );
   };

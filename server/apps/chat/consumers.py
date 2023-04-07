@@ -37,7 +37,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             pass
 
     @database_sync_to_async  
-    def save_chat_message_async(chat_message):
+    def save_chat_message_async(self,chat_message):
         chat_message.save()
 
     def saveMessage(self, message, userId, roomId):
@@ -72,6 +72,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 print("img_path",img_path)
                 img.save(img_path)
                 print("5")
+                print("Hello")
             except Exception as e:
                 print('Error:',e)
     
@@ -132,7 +133,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.userRooms = await database_sync_to_async(
             list
         )(ChatRoom.objects.filter(member=self.userId))
-        for room in self.userRooms:
+        
+        for room in self.userRooms: 
             await self.channel_layer.group_add(
                 room.roomId,
                 self.channel_name
@@ -156,7 +158,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         action = text_data_json['action']
         roomId = text_data_json['roomId']
-
+        print("roomId:",roomId)
+        if roomId is None:
+           print("RoomId is None") 
+           return
         chatMessage = {}
         if action == 'message':
             if 'message' in text_data_json:
