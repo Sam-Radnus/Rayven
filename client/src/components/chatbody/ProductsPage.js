@@ -1,18 +1,63 @@
-import React, { useState } from 'react'
+import React, { useState ,useEffect } from 'react'
 import "./ProductsPage.css"
+import CommonUtil from '../../util/commonUtil'
+import axios from 'axios'
 const ProductsPage = () => {
+
     const [modal, setModal] = useState(false);
+    const [userInfo,setUserInfo]=useState({});
+    
     const handleModalOpen = () => {
+        
+
         setModal(true);
       };
     
       const handleModalClose = () => {
         setModal(false);
       };
-    
+      const getUserDetails = async () => {
+        const accessToken=sessionStorage.getItem('access')
+        console.warn(CommonUtil.getUserId());
+        try {
+            
+            console.log(accessToken)
+            const response = await axios.post(
+              "http://127.0.0.1:8000/api/v1/getUserProfile",
+              {
+                  
+                  'user_id': `${CommonUtil.getUserId()}`
+               
+              }
+            ); 
+           
+             console.log(response)
+             setUserInfo(response?.data?.User)
+          } catch (error) {
+            console.error(error);
+          }
+        };
+    useEffect(()=>{
+        getUserDetails();
+    },[userInfo?.id])
     return (
         <div>
+            <div>
+            <div style={{position:'absolute',right:'2%',top:'2%',display:'flex'}}>
+                <div>
+                { userInfo && 
+                <img src={userInfo.image}  className="rounded-circle mr-1"
+                    alt={userInfo.username}
+                    width="40"
+                    height="40"/>
+                }
+                </div>
+               <div style={{marginTop:'5px'}}> <h4>{userInfo.first_name} {userInfo.last_name}</h4></div>
+               </div>
+               
+            </div>
             <h1 style={{ textAlign: 'center' }}>Products</h1>
+            
             <button style={{ marginLeft: '73vw' }} onClick={handleModalOpen} className="btn btn-primary">Create Product</button>
             <div className={`modal ${modal ? "d-block" : "d-none"}`} id="productModal" tabindex="-1" role="dialog" aria-labelledby="productModalLabel" aria-hidden="true">
               <div class="modal-dialog" role="document">

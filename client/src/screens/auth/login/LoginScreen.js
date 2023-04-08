@@ -22,12 +22,18 @@ const LoginScreen = ({ location }) => {
       false
     );
     if (successLoginData) {
+      console.log(successLoginData);
+      alert("Log In Succesful")
       Object.keys(successLoginData).forEach((key) => {
         CookieUtil.setCookie(key, successLoginData[key]);
+        console.log(key, successLoginData[key])
+        sessionStorage.setItem(key, successLoginData[key]);
       });
+      
       window.location.href = AppPaths.HOME;
     }
-  };
+  }; 
+
 
   const getLoginMessage = () => {
     if (

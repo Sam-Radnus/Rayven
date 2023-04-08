@@ -5,6 +5,7 @@ import ServerUrl from "../../api/serverUrl";
 import Constants from "../../lib/constants";
 import SocketActions from "../../lib/socketActions";
 import CommonUtil from "../../util/commonUtil";
+import CookieUtil from "../../util/cookieUtil";
 import "./chatBodyStyle.css";
 import Modal from "react-bootstrap/Modal";
 import { useNavigate } from "react-router-dom";
@@ -81,9 +82,9 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
     compound: -0.1068,
   });
   useEffect(() => {
+    console.log(CommonUtil.getUserId());
     fetchChatMessage();
-
-  }, [window.location.pathname.slice(4,)]);
+  }, [window.location.pathname.slice(3,)]);
    
   const loggedInUserId = CommonUtil.getUserId();
   const getChatMessageClassName = (userId) => {
@@ -174,6 +175,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
     const data = JSON.parse(event.data);
     const chatId = window.location.pathname.slice(3,);
     const userId = CommonUtil.getUserId();
+    
     if (messages && messages?.results) console.log(messages?.results[0]?.message);
     if (chatId === data.roomId) {
       if (data.action === SocketActions.MESSAGE) {
