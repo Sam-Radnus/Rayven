@@ -8,6 +8,15 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from PIL import Image
+from io import BytesIO
+import uuid
+import os
+from django.conf import settings
+from .models import Product
+import base64
+from django.core.files.base import ContentFile
 from apps.user.models import User
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -120,3 +129,93 @@ def get_user_details(request):
             return JsonResponse({'Error':'Insufficient Data'}) 
     else:
         return JsonResponse({'Error':'Invalid Method'})
+
+@csrf_exempt
+def create_product2(request):
+     print('Hello')
+     return JsonResponse({'hello':'world'})
+
+
+@csrf_exempt
+def create_product(request):
+    if request.method == "POST":
+        # Parse JSON data from request body
+        print(1)
+        data = json.loads(request.body)
+        name = data.get('name')
+        price = data.get('price')
+        image_data = data.get('image')
+        user_id=data.get('user_id')
+        image_url=None
+        print(2)
+        #if not all([name, price, image_data]):
+        #    return JsonResponse({'error': 'Missing data'})
+        print(3)
+        try:
+            # Decode base64 image data and generate a unique filename
+            #image_data = base64.b64decode(image_data)
+            print('OI')
+            image_binary_data = base64.b64decode(image_data.split(',')[1])
+        
+            img = Image.open(BytesIO(image_binary_data))
+            filename = f'{uuid.uuid4()}.jpg'
+            path="C:\Sam Sund ar\Rayven\django-chat\server\media"
+            #img_path=os.path.join(path,'product_images',filename)
+            img_path = os.path.join(settings.MEDIA_ROOT, 'product_images', filename)
+            print(img_path)
+            img.save(img_path)
+            
+            print(4)
+            # Save the image locally
+            
+            image_url = f"{settings.MEDIA_URL}product_images/{filename}"
+        except:
+            print('error')
+        user=User.objects.get(id=user_id)
+        
+        print(5)
+        # Create the new product object
+        product = Product.objects.create(
+            name=name,
+            price=price,
+            owner=user,
+            image=image_url
+        )
+        print(1)
+        # Return the URL of the saved image in the response
+        image_url = request.build_absolute_uri(product.image.url)
+        print(1)
+        return JsonResponse({'product': {
+            'name': product.name,
+            'price': product.price,
+            'image_url': image_url
+        }})
+    else:
+        return JsonResponse({'error': 'Invalid method'})
+
+@csrf_exempt
+def getProducts(request):
+    if request.method=='POST':
+       body_bytes=request.body 
+       request_data=json.loads(body_bytes)
+       user_id=request_data.get('user_id')
+       try :
+           
+           user = get_object_or_404(User, pk=user_id)
+           print(user)
+           product = Product.objects.filter(owner=user)
+           print(product)
+           data = {'products': []}
+           for product in product:
+               data['products'].append({
+               'id': product.id,
+               'name': product.name,
+               'price': str(product.price),
+               'image_url': request.build_absolute_uri(product.image.url),
+            })
+           return JsonResponse({'products':data})
+       except:
+            return JsonResponse({'error':'occurred'})
+    else:
+         return JsonResponse({'error':'Invalid Operation'})   
+    
