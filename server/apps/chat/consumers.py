@@ -79,7 +79,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             # Set the image URL to the path relative to the media folder
             image_url = f"{settings.MEDIA_URL}chat_images/{img_name}"
             #image_url = f"{settings.MEDIA_ROOT}chat_images/{img_name}"
-            print("6")
+           
             print(image_url)
             # Update the ChatMessage object with the image data
             print('img_data_0',image_url)
@@ -92,7 +92,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             print(chatMessageObj)
             sync_to_async(chatMessageObj.save)()
             imgdata=chatMessageObj.image_data.url
-            print("7")
+            
         else:
             # Create a new ChatMessage object with the text message
             print('No Image')
@@ -192,4 +192,3 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def chat_message(self, event):
         message = event['message']
         await self.send(text_data=json.dumps(message))
-    
