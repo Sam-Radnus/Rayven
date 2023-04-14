@@ -478,14 +478,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
 
   return (
     <div className="col-12 col-sm-8 col-md-8 col-lg-8 col-xl-10 pl-0 pr-0">
-     <div onClick={()=>{
-              navigate('/products')
-       }}  style={{position:'absolute',top:'4%',left:'-20%',cursor:'pointer'}}>
-         <svg  xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-box-arrow-left" viewBox="0 0 16 16">
-           <path fill-rule="evenodd" d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0v2z"/>
-           <path fill-rule="evenodd" d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"/>
-         </svg>
-      </div>
+     
       <div style={{ position: 'absolute', top: '2%', right: '2%', display: 'flex', gap: '10px' }} >
 
         {snippets.map((snippet, index) => (
@@ -571,7 +564,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
 
           {messages?.results?.map((message, index) => (
             (message?.message || message?.image_data) && (
-              <div key={index} className={getChatMessageClassName(message.user)}>
+              <div key={index} style={{}} className={getChatMessageClassName(message.user)}>
                 <div>
                   <img
                     src={message.userImage}
@@ -581,7 +574,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
                     height="40"
                   />
                   <div className="text-muted small text-nowrap mt-2">
-                    <p style={{ color: 'white !important' }}>{CommonUtil.getTimeFromDate(message.timestamp)}</p>
+                    
                   </div>
                 </div>
                 <div style={{ backgroundColor: '#1C2A39' }} className="flex-shrink-1 ml-1 rounded py-2 px-3 mr-3">
@@ -619,7 +612,9 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
                   ) : (
                     <div dangerouslySetInnerHTML={{ __html: toHTML(message?.message) }}></div>
                   )}
-
+                <div style={{position:'relative',height:'30px'}}>
+                <p style={{ position:'absolute',bottom:'-50%',right:'0',color: 'white !important' }}>{CommonUtil.getTimeFromDate(message.timestamp)}</p>
+                </div>
                 </div>
               </div>
             )
@@ -637,7 +632,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
               onKeyUp={chatMessageTypingHandler}
               value={inputMessage}
               onKeyDown={handleKeyDown}
-              style={{ backgroundColor:'#18191B',height: '50px', resize: 'none' }}
+              style={{ backgroundColor:'#18191B',height: '50px', resize: 'none',color:'white' }}
               id="chat-message-input"
               type="text"
               className="form-control"
