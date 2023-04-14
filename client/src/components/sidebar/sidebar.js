@@ -8,13 +8,13 @@ import ApiEndpoints from "../../api/apiEndpoints";
 import CommonUtil from "../../util/commonUtil";
 import Constants from "../../lib/constants";
 import Modal from "../modal/modal";
-
+import { ReactCalculator } from "simple-react-calculator";
 const Sidebar = (props) => {
   const navigate=useNavigate();
   const [chatUsers, setChatUsers] = useState([]); //sidebar users
   const [users, setUsers] = useState([]); //popup users
   const [isShowAddPeopleModal, setIsShowAddPeopleModal] = useState(false);
-
+  const [position, setPosition] = useState({ x: 0, y: 0 });
   const redirectUserToDefaultChatRoom = (chatUsers) => {
     console.log(1);
     if (window.location.pathname === AppPaths.HOME) {
@@ -29,6 +29,23 @@ const Sidebar = (props) => {
       
       props.setCurrentChattingMember(chatUser);
     }
+  }; 
+  const handleMouseDown = (event) => {
+    const startX = event.pageX - position.x;
+    const startY = event.pageY - position.y;
+
+    const handleMouseMove = (event) => {
+      setPosition({
+        x: event.pageX - startX,
+        y: event.pageY - startY,
+      });
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+
+    document.addEventListener('mouseup', () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+    });
   };
 
   const fetchChatUser = async () => {
@@ -110,8 +127,9 @@ const Sidebar = (props) => {
 
   return (
     <div className="col-12 col-sm-4 col-md-4 col-lg-4 col-xl-2">
-      <div className="d-none d-md-block">
-        <button
+       <div onMouseDown={handleMouseDown}style={{border:'solid',minHeight:'fit-content',minWidth:'fit-content',position: 'absolute', left: position.x, top: position.y,zIndex:'100000',padding:'10px',backgroundColor:'#18191B',borderColor:'white',position:'absolute'}}>
+       <div>
+       <button
           onClick={addPeopleClickHandler}
           className="btn"
           id="add_people"
@@ -119,7 +137,30 @@ const Sidebar = (props) => {
         >
           Add People
         </button>
+        </div> 
+        <div>
+        <button
+        onClick={logoutClickHandler}
+        id="add_people"
+        className="btn"
+      >
+        Log Out
+      </button>
       </div>
+      <div onClick={()=>{
+              navigate('/products')
+       }}  style={{borderRadius:'5px',cursor:'pointer',textAlign:'center'}} id="add_people">
+         <svg style={{color:'#18191B !important'}} xmlns="http://www.w3.org/2000/svg" width="26" height="26"  className="bi bi-box-arrow-left" viewBox="0 0 16 16">
+           <path fill-rule="evenodd" d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0v2z"/>
+           <path fill-rule="evenodd" d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"/>
+         </svg>
+      </div>
+      </div>
+      <div className="d-none d-md-block">
+      
+      </div>
+     <div style={{height:'100px',width:'300px'}}>
+   </div>
       <div className="user-list-container mt-3">
         {getChatListWithOnlineUser()?.map((chatUser) => {
          
@@ -136,6 +177,7 @@ const Sidebar = (props) => {
               <div className="d-flex align-items-start">
                 <img
                   src={chatUser.image}
+                  style={{border:'solid',borderColor:`${chatUser.isOnline?'#14B86C':'#9F77EB'}`}}
                   className="rounded-circle mr-1"
                   alt={chatUser.name}
                   width="40"
@@ -146,13 +188,13 @@ const Sidebar = (props) => {
                   <div className="small">
                     {chatUser.isOnline ? (
                       <>
-                        <span className="fas fa-circle chat-online"></span>{" "}
+                        <span stlye={{color:'#14B86C !important'}} className="fas fa-circle chat-online "></span>{" "}
                         Online
                       </>
                     ) : (
                       <>
                         <span className="fas fa-circle chat-offline"></span>{" "}
-                        offline
+                        Offline
                       </>
                     )}
                   </div>
@@ -162,14 +204,9 @@ const Sidebar = (props) => {
           );
         })}
       </div>
-      <button
-        onClick={logoutClickHandler}
-        id="logout"
-        className="btn"
-      >
-        Log Out
-      </button>
+      
       <hr className="d-block d-lg-none mt-1 mb-0" />
+      
       <Modal
         modalCloseHandler={() => setIsShowAddPeopleModal(false)}
         show={isShowAddPeopleModal}
