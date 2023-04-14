@@ -9,12 +9,15 @@ import CookieUtil from "../../util/cookieUtil";
 import "./chatBodyStyle.css";
 import Modal from "react-bootstrap/Modal";
 import { useNavigate } from "react-router-dom";
+
 import Calculator from "./Calculator";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Chart from "./Chart";
 import axios from 'axios';
 import openai from 'openai';
+
 import TextProcess from "./TextProcess";
+import Sidebar from "./Sidebar";
 let socket = new WebSocket(
   ServerUrl.WS_BASE_URL + `ws/users/${CommonUtil.getUserId()}/chat/`
 );
@@ -33,6 +36,29 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
   const [showImageModal, setShowImageModal] = useState(false);
   const [calcModal,setCalcModal]=useState(false);
   const [products,setProducts]=useState([]);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isOpen, setIsOpen] = useState(false);
+  const [userInfo,setUserInfo]=useState({});
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+  }
+  const handleMouseDown = (event) => {
+    const startX = event.pageX - position.x;
+    const startY = event.pageY - position.y;
+
+    const handleMouseMove = (event) => {
+      setPosition({
+        x: event.pageX - startX,
+        y: event.pageY - startY,
+      });
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+
+    document.addEventListener('mouseup', () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+    });
+  };
 
   const navigate=useNavigate();
   function handleImageClick() {
@@ -127,13 +153,15 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
   }
 
   useEffect(()=>{
-  
+   
     console.log(currentChattingMember);
     const user_id=currentChattingMember?.id
     console.log(user_id);
+    getUserDetails();
     axios.post('http://127.0.0.1:8000/api/v1/isShopOwner/', {
       id: user_id // Replace with the actual user ID you want to check
   })
+    
   .then(function (response) {
       console.log(response)
       console.log(response?.data?.isShopOwner);
@@ -142,7 +170,29 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
   .catch(function (error) {
       console.log(error);
   });
+  
   },[currentChattingMember])
+  const getUserDetails = async () => {
+    
+    console.warn(currentChattingMember?.id);
+    try {
+
+        
+        const response = await axios.post(
+            "http://127.0.0.1:8000/api/v1/getUserProfile",
+            {
+
+                'user_id': `${currentChattingMember?.id}`
+
+            }
+        );
+
+        console.log(response)
+        setUserInfo(response?.data?.User)
+    } catch (error) {
+        console.error(error);
+    }
+};
   function Snippet({ text }) {
     const handleCopyClick = () => {
       onCopyClick(text);
@@ -426,16 +476,25 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
   }
   
   function ProductModal(props) {
- 
-     
-    function sendProduct(product) {
-      // Do something with selectedImage, e.g. upload to server
+    const [productStates, setProductStates] = useState(products.map(() => ({
+      price: '',
+      isSending: false
+    })));
+  
+    function sendProduct(productIndex) {
+      const product = products[productIndex];
+
+      const productState = productStates[productIndex];
+    
+      const newProductStates = [...productStates];
+      newProductStates[productIndex] = { ...productState, isSending: true };
+      setProductStates(newProductStates);
       const event = new Event("build");
       const message=`<div class="card" style="width: 18rem; background-color: #18191B;">
       <img src=${product.image_url} class="card-img-top" alt="...">
       <div class="card-body">
         <h5 class="card-title">${product.name}</h5>
-        <p class="card-text">$${product.price}</p>
+        <p class="card-text">$${productState.price}</p>
         <a href="#" class="btn btn-primary">Buy Now</a>
       </div>
     </div>`;
@@ -449,9 +508,16 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
           roomId: window.location.pathname.slice(3,),
         })
       );
-     
-    }
+      // Send the product
+      // ...
+  
+      // Update the state when the product has been sent
 
+      const updatedProductState = { ...productState, isSending: false };
+      newProductStates[productIndex] = updatedProductState;
+      setProductStates(newProductStates);
+    }
+  
     return (
       <div style={{ zIndex: 999, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',height:'fit-content',width:'fit-content'}} role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
         <div className="modal-dialog" role="document">
@@ -463,19 +529,111 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
               </button>
             </div>
             <div className="modal-body">
-            {products.map((product) => (
-              <div  className="my-3" style={{display:'flex',display: 'flex', justifyContent: 'space-between', alignItems: 'center',  width: '48vw'}}>
-               <img src={product?.image_url} alt="product image" height="60" width="60"/>
-               <h5>{product?.name}</h5>
-               <h5>${product?.price}</h5>
-               <button className="btn btn-primary" onClick={()=>{sendProduct(product)}}>SEND</button>
-             </div>
-            ))}
-             
+              {products.map((product, index) => (
+                <div className="my-3" style={{display:'flex',display: 'flex', justifyContent: 'space-between', alignItems: 'center',  width: '48vw'}}>
+                  <img src={product?.image_url} alt="product image" height="60" width="60"/>
+                  <h5>{product?.name}</h5>
+                  <input type="number" value={productStates[index]?.price?productStates[index]?.price:product?.price} onChange={(e) => {
+                    const newProductStates = [...productStates];
+                    newProductStates[index] = { ...productStates[index], price: e.target.value };
+                    setProductStates(newProductStates);
+                  }}/>
+                  <button className="btn btn-primary" onClick={()=>{sendProduct(index)}} disabled={productStates[index]?.isSending}>
+                    {productStates[index]?.isSending ? 'Sending...' : 'SEND'}
+                  </button>
+                </div>
+              ))}
             </div>
-          
           </div>
         </div>
+      </div>
+    );
+  }
+  
+  function ToolKit(props){
+    return (
+      <div style={{backgroundColor:'#18191B',border:'solid',padding:'20px'}}>
+          <div 
+              onClick={addSnippet}
+              className="btn"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-clipboard2-plus-fill" viewBox="0 0 16 16">
+                <path d="M10 .5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5.5.5 0 0 1-.5.5.5.5 0 0 0-.5.5V2a.5.5 0 0 0 .5.5h5A.5.5 0 0 0 11 2v-.5a.5.5 0 0 0-.5-.5.5.5 0 0 1-.5-.5Z" />
+                <path d="M4.085 1H3.5A1.5 1.5 0 0 0 2 2.5v12A1.5 1.5 0 0 0 3.5 16h9a1.5 1.5 0 0 0 1.5-1.5v-12A1.5 1.5 0 0 0 12.5 1h-.585c.055.156.085.325.085.5V2a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 4 2v-.5c0-.175.03-.344.085-.5ZM8.5 6.5V8H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V9H6a.5.5 0 0 1 0-1h1.5V6.5a.5.5 0 0 1 1 0Z" />
+              </svg>
+            </div>
+            <div
+
+              className="btn"
+              onClick={handleImageClick}
+            >
+
+              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-card-image" viewBox="0 0 16 16">
+                <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+                <path d="M1.5 2A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13zm13 1a.5.5 0 0 1 .5.5v6l-3.775-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12v.54A.505.505 0 0 1 1 12.5v-9a.5.5 0 0 1 .5-.5h13z" />
+              </svg>
+            </div>
+            <div
+           
+              className="btn"
+              onClick={()=>{
+                setCalcModal(true)
+              }}
+            >
+             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-calculator-fill" viewBox="0 0 16 16">
+  <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm2 .5v2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5zm0 4v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zM4.5 9a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM4 12.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zM7.5 6a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM7 9.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm.5 2.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM10 6.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm.5 2.5a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 0-.5-.5h-1z"/>
+</svg>
+
+            </div>
+            <div className="btn" onClick={() => {
+              if (snippets) setSnippets([]);
+            }}>
+              
+            
+              <svg style={{ color: 'white' }} xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-trash-fill" viewBox="0 0 16 16">
+                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
+              </svg>
+
+
+            </div>
+            <div
+
+              className="btn"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-pencil-square" viewBox="0 0 16 16">
+  <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+  <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+</svg>
+            </div>
+            <div
+  
+              className="btn"
+              onClick={()=>{
+                let open=isOpen;
+                setIsOpen(!open);
+              }}
+            >
+             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+  <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+  <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+</svg>
+            </div>
+            <div className="btn" onClick={handleOpenProductModal}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-cart" viewBox="0 0 16 16">
+                <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+              </svg>
+            </div>
+            <div className="btn" onClick={handleOpenModal} >
+              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-robot" viewBox="0 0 16 16">
+                <path d="M6 12.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5ZM3 8.062C3 6.76 4.235 5.765 5.53 5.886a26.58 26.58 0 0 0 4.94 0C11.765 5.765 13 6.76 13 8.062v1.157a.933.933 0 0 1-.765.935c-.845.147-2.34.346-4.235.346-1.895 0-3.39-.2-4.235-.346A.933.933 0 0 1 3 9.219V8.062Zm4.542-.827a.25.25 0 0 0-.217.068l-.92.9a24.767 24.767 0 0 1-1.871-.183.25.25 0 0 0-.068.495c.55.076 1.232.149 2.02.193a.25.25 0 0 0 .189-.071l.754-.736.847 1.71a.25.25 0 0 0 .404.062l.932-.97a25.286 25.286 0 0 0 1.922-.188.25.25 0 0 0-.068-.495c-.538.074-1.207.145-1.98.189a.25.25 0 0 0-.166.076l-.754.785-.842-1.7a.25.25 0 0 0-.182-.135Z" />
+                <path d="M8.5 1.866a1 1 0 1 0-1 0V3h-2A4.5 4.5 0 0 0 1 7.5V8a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1v1a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1v-.5A4.5 4.5 0 0 0 10.5 3h-2V1.866ZM14 7.5V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.5A3.5 3.5 0 0 1 5.5 4h5A3.5 3.5 0 0 1 14 7.5Z" />
+              </svg>
+            </div>
+            <div className="btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-gear-fill" viewBox="0 0 16 16">
+                <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z" />
+              </svg>
+            </div>
       </div>
     );
   }
@@ -484,8 +642,10 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
     setCalcModal(false);
   }
   return (
-    <div className="col-12 col-sm-8 col-md-8 col-lg-8 col-xl-10 pl-0 pr-0">
-     
+    <div  className=" col-12 col-sm-8 col-md-8 col-lg-8 col-xl-10 pl-0 pr-0">
+       { isOpen && userInfo &&
+       <Sidebar  userInfo={userInfo} />
+        }
       <div style={{ position: 'absolute', top: '2%', right: '2%', display: 'flex', gap: '10px' }} >
 
         {snippets.map((snippet, index) => (
@@ -507,20 +667,18 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
             <Calculator handleCloseCalclModal={closeCalcModal}/> 
          </div>
       )}
+      <div
+      style={{ position: 'absolute',zIndex:'9999999',left: position.x, top: position.y }}
+      onMouseDown={handleMouseDown}
+    >
+      <ToolKit/>
      
+    </div>
       <div style={{ backgroundColor: 'rgb(37, 56, 81)' }} className="py-2 px-4  d-none d-lg-block">
 
         <div className="d-flex align-items-center py-1">
           <div className="position-relative">
 
-            <button type="button" className="btn btn" style={{ position: 'absolute', top: '25%', right: '150%' }} onClick={() => {
-              if (snippets) setSnippets([]);
-            }} >
-              <svg style={{ color: 'white' }} xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-trash-fill" viewBox="0 0 16 16">
-                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
-              </svg>
-
-            </button>
 
             <div className="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
               <div className="modal-dialog modal-dialog-centered">
@@ -577,7 +735,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
 
           {messages?.results?.map((message, index) => (
             (message?.message || message?.image_data) && (
-              <div key={index} style={{}} className={getChatMessageClassName(message.user)}>
+              <div key={index} style={{transition:'opacity 0.5 ease'}} className={getChatMessageClassName(message.user)}>
                 <div>
                   <img
                     src={message.userImage}
@@ -660,7 +818,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
                 <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z" />
               </svg>
             </button>
-            <div
+            {/* <div
               onClick={addSnippet}
               className="btn"
             >
@@ -725,12 +883,12 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
               <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-gear-fill" viewBox="0 0 16 16">
                 <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z" />
               </svg>
-            </div>
+            </div> */}
           </div>
 
         </form>
       </div>
-      \
+   
     </div>
   );
 };

@@ -20,7 +20,7 @@ const Display = ({ input, setInput, answer }) => {
               type="text"
               name="input"
               className="input"
-              style={{ padding: "29px" }}
+              style={{ padding: "29px",cursor:'pointer' }}
               value={input}
               placeholder="0"
               maxLength={12}

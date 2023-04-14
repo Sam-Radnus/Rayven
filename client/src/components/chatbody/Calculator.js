@@ -28,7 +28,7 @@ function Calculator({handleCloseCalclModal}) {
   const inputHandler = (event) => {
     if (answer === "Invalid Input!!") return;
     let val = event.target.innerText;
-    alert("clicked")
+   
     if (val === "x2") val = "^2";
     else if (val === "x3") val = "^3";
     else if (val === "3√") val = "^(1÷3)";
@@ -148,7 +148,7 @@ function Calculator({handleCloseCalclModal}) {
 
   return (
     <>
-      <div style={{ position: 'absolute', zIndex:100000,left: position.x, top: position.y,maxHeight:'100px',width:'410px' }}
+      <div style={{ cursor:'pointer',position: 'absolute', zIndex:100000,left: position.x, top: position.y,maxHeight:'100px',width:'410px',transform: 'scale(0.7)'}}
       onMouseDown={handleMouseDown} className="container">
          
         <div  style={{position:'relative'}} className="main">
