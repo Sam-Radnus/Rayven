@@ -31,7 +31,9 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
   const [visible, setVisible] = useState('');
   const [productModal,setProductModal]=useState(false)
   const [showImageModal, setShowImageModal] = useState(false);
+  const [calcModal,setCalcModal]=useState(false);
   const [products,setProducts]=useState([]);
+
   const navigate=useNavigate();
   function handleImageClick() {
     console.log("Open");
@@ -392,7 +394,8 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
       messageSubmitHandler(event);
       props.onClose();
     }
-
+    
+    
     return (
       <div id="imageModal" style={{ zIndex: 999, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }} role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
         <div className="modal-dialog" role="document">
@@ -476,7 +479,10 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
       </div>
     );
   }
+  const closeCalcModal=()=>{
 
+    setCalcModal(false);
+  }
   return (
     <div className="col-12 col-sm-8 col-md-8 col-lg-8 col-xl-10 pl-0 pr-0">
      
@@ -496,10 +502,12 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
       {showModal && (
         <TextProcess  showModal={showModal} handleCloseModal={handleCloseModal} />
       )}
-
-      <div style={{position:'absolute',top:'50%',left:'50%'}}>
-      <Calculator/> 
-      </div>
+      {calcModal && (
+         <div style={{position:'absolute',top:'50%',left:'50%'}}>
+            <Calculator handleCloseCalclModal={closeCalcModal}/> 
+         </div>
+      )}
+     
       <div style={{ backgroundColor: 'rgb(37, 56, 81)' }} className="py-2 px-4  d-none d-lg-block">
 
         <div className="d-flex align-items-center py-1">
@@ -673,12 +681,15 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
               </svg>
             </div>
             <div
-
+           
               className="btn"
+              onClick={()=>{
+                setCalcModal(true)
+              }}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-emoji-smile-fill" viewBox="0 0 16 16">
-                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5zM4.285 9.567a.5.5 0 0 1 .683.183A3.498 3.498 0 0 0 8 11.5a3.498 3.498 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.498 4.498 0 0 1 8 12.5a4.498 4.498 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683zM10 8c-.552 0-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5S10.552 8 10 8z" />
-              </svg>
+             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-calculator-fill" viewBox="0 0 16 16">
+  <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm2 .5v2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5zm0 4v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zM4.5 9a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM4 12.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zM7.5 6a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM7 9.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm.5 2.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM10 6.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm.5 2.5a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 0-.5-.5h-1z"/>
+</svg>
 
             </div>
             <div

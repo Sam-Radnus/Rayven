@@ -3,8 +3,7 @@ import Display from "./Display";
 import Buttons from "./Buttons";
 import "./styles/Calculator.css";
 import { evaluate, round } from "mathjs";
-import { ReactCalculator } from "simple-react-calculator";
-function Calculator() {
+function Calculator({handleCloseCalclModal}) {
   const [input, setInput] = useState("");
   const [answer, setAnswer] = useState("");
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -29,7 +28,7 @@ function Calculator() {
   const inputHandler = (event) => {
     if (answer === "Invalid Input!!") return;
     let val = event.target.innerText;
-
+    alert("clicked")
     if (val === "x2") val = "^2";
     else if (val === "x3") val = "^3";
     else if (val === "3√") val = "^(1÷3)";
@@ -149,9 +148,14 @@ function Calculator() {
 
   return (
     <>
-      <div style={{ position: 'absolute', left: position.x, top: position.y,height:'500px',width:'500px' }}
+      <div style={{ position: 'absolute', zIndex:100000,left: position.x, top: position.y,maxHeight:'100px',width:'410px' }}
       onMouseDown={handleMouseDown} className="container">
-        <div  className="main">
+         
+        <div  style={{position:'relative'}} className="main">
+
+        <div>
+            <b style={{position:'absolute',top:'-1%',right:0,cursor:'pointer'}} onClick={handleCloseCalclModal}>X</b>
+         </div>
           <Display input={input} setInput={setInput} answer={answer} />
           <Buttons
             inputHandler={inputHandler}

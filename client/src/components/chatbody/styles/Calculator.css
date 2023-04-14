@@ -1,6 +1,7 @@
 .container {
-    background-color: #dfe9f5;
-    min-height: 100vh;
+    background-color: none;
+    min-height: 83vh;
+    padding-top: 50px;
     min-width: 100%;
     display: flex;
     align-items: center;
