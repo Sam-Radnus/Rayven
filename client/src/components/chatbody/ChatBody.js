@@ -9,6 +9,7 @@ import CookieUtil from "../../util/cookieUtil";
 import "./chatBodyStyle.css";
 import Modal from "react-bootstrap/Modal";
 import { useNavigate } from "react-router-dom";
+import Calculator from "./Calculator";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Chart from "./Chart";
 import axios from 'axios';
@@ -495,6 +496,10 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
       {showModal && (
         <TextProcess  showModal={showModal} handleCloseModal={handleCloseModal} />
       )}
+
+      <div style={{position:'absolute',top:'50%',left:'50%'}}>
+      <Calculator/> 
+      </div>
       <div style={{ backgroundColor: 'rgb(37, 56, 81)' }} className="py-2 px-4  d-none d-lg-block">
 
         <div className="d-flex align-items-center py-1">
@@ -714,6 +719,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
 
         </form>
       </div>
+      \
     </div>
   );
 };
