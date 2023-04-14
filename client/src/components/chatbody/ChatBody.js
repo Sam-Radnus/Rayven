@@ -27,18 +27,20 @@ let isTypingSignalSent = false;
 const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
   const [inputMessage, setInputMessage] = useState("");
   const [messages, setMessages] = useState({});
-  const [owner,setOwner]=useState(false);
+  const [owner, setOwner] = useState(false);
   const [typing, setTyping] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [replies, setReplies] = useState([]);
   const [visible, setVisible] = useState('');
-  const [productModal,setProductModal]=useState(false)
+  const [productModal, setProductModal] = useState(false)
   const [showImageModal, setShowImageModal] = useState(false);
-  const [calcModal,setCalcModal]=useState(false);
-  const [products,setProducts]=useState([]);
+  const [cartItems, setCartItems] = useState([]);
+  const [calcModal, setCalcModal] = useState(false);
+  const [products, setProducts] = useState([]);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isOpen, setIsOpen] = useState(false);
-  const [userInfo,setUserInfo]=useState({});
+  const [userInfo, setUserInfo] = useState({});
+  const [tools, setTools] = useState(false);
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   }
@@ -60,24 +62,24 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
     });
   };
 
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   function handleImageClick() {
     console.log("Open");
     setShowImageModal(true);
   }
 
   function handleImageModalClose() {
-    
+
     setShowImageModal(false);
   }
-  function handleProductModalClose(){
+  function handleProductModalClose() {
     setProductModal(false);
   }
-  useEffect(()=>{
+  useEffect(() => {
     console.log("Hey Ho")
     console.log(window.location.pathname.slice(3,));
     fetchChatMessage();
-  },[window.location.pathname])
+  }, [window.location.pathname])
   const fetchChatMessage = async () => {
 
     const currentChatId = CommonUtil.getActiveChatId(currentChattingMember);
@@ -119,7 +121,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
     console.log(CommonUtil.getUserId());
     fetchChatMessage();
   }, [window.location.pathname.slice(3,)]);
-   
+
   const loggedInUserId = CommonUtil.getUserId();
   const getChatMessageClassName = (userId) => {
     return loggedInUserId === userId
@@ -151,48 +153,53 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
     //   console.log(err);
     // }
   }
+  const addToCart = (product) => {
+    const updatedCartItems = [...cartItems, product];
+    setCartItems(updatedCartItems);
+    localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
+  }
 
-  useEffect(()=>{
-   
+  useEffect(() => {
+
     console.log(currentChattingMember);
-    const user_id=currentChattingMember?.id
+    const user_id = currentChattingMember?.id
     console.log(user_id);
     getUserDetails();
     axios.post('http://127.0.0.1:8000/api/v1/isShopOwner/', {
       id: user_id // Replace with the actual user ID you want to check
-  })
-    
-  .then(function (response) {
-      console.log(response)
-      console.log(response?.data?.isShopOwner);
-      setOwner(response?.data?.isShopOwner);
-  })
-  .catch(function (error) {
-      console.log(error);
-  });
-  
-  },[currentChattingMember])
+    })
+
+      .then(function (response) {
+        console.log(response)
+        console.log(response?.data?.isShopOwner);
+        setOwner(response?.data?.isShopOwner);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+
+  }, [currentChattingMember])
   const getUserDetails = async () => {
-    
+
     console.warn(currentChattingMember?.id);
     try {
 
-        
-        const response = await axios.post(
-            "http://127.0.0.1:8000/api/v1/getUserProfile",
-            {
 
-                'user_id': `${currentChattingMember?.id}`
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/v1/getUserProfile",
+        {
 
-            }
-        );
+          'user_id': `${currentChattingMember?.id}`
 
-        console.log(response)
-        setUserInfo(response?.data?.User)
+        }
+      );
+
+      console.log(response)
+      setUserInfo(response?.data?.User)
     } catch (error) {
-        console.error(error);
+      console.error(error);
     }
-};
+  };
   function Snippet({ text }) {
     const handleCopyClick = () => {
       onCopyClick(text);
@@ -233,7 +240,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
     const data = JSON.parse(event.data);
     const chatId = window.location.pathname.slice(3,);
     const userId = CommonUtil.getUserId();
-    
+
     if (messages && messages?.results) console.log(messages?.results[0]?.message);
     if (chatId === data.roomId) {
       if (data.action === SocketActions.MESSAGE) {
@@ -262,25 +269,25 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
     setShowModal(false);
   };
 
-  const handleOpenProductModal=async()=>{
-    
+  const handleOpenProductModal = async () => {
+
     console.warn(CommonUtil.getUserId());
     try {
 
 
-        const response = await axios.post(
-            "http://127.0.0.1:8000/api/v1/getProducts",
-            {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/v1/getProducts",
+        {
 
-                'user_id': `${CommonUtil.getUserId()}`
+          'user_id': `${CommonUtil.getUserId()}`
 
-            }
-        );
+        }
+      );
 
-        console.log(response?.data?.products?.products)
-        setProducts(response?.data?.products?.products);
+      console.log(response?.data?.products?.products)
+      setProducts(response?.data?.products?.products);
     } catch (error) {
-        console.error(error);
+      console.error(error);
     }
     setProductModal(true);
   }
@@ -337,7 +344,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
           action: SocketActions.MESSAGE,
           message: text,
           user: CommonUtil.getUserId(),
-          roomId:window.location.pathname.slice(3,),
+          roomId: window.location.pathname.slice(3,),
         })
       );
     }
@@ -353,7 +360,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
       })
     );
   };
-  
+
   const getSentimentVal = async (input) => {
     console.log(input);
     const text = 'How do I create a React app?';
@@ -380,7 +387,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
       console.log(error);
     }
   }
-  
+
   const chatMessageTypingHandler = (event) => {
     if (event.keyCode !== Constants.ENTER_KEY_CODE) {
       if (!isTypingSignalSent) {
@@ -397,23 +404,23 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
       isTypingSignalSent = false;
     }
   };
-  
-  const toHTML=(message)=>{
+
+  const toHTML2 = (message) => {
     const tableRegex = /^(\|(?:.*?\|)+)(?:\r?\n)(\|(?:.*?\|)+)(?:\r?\n)((?::?-+:?\|)+)(?:\r?\n)((?:\|(?:.*?\|)+\r?\n)*)/gim; // table regex
     const codeRegex = /(`{3})([\s\S]*?)(\1)/gim; // code block regex
     return message
-    .replace(/^### (.*$)/gim, '<h3>$1</h3>') // h3 tag
-    .replace(/^## (.*$)/gim, '<h2>$1</h2>') // h2 tag
-    .replace(/^# (.*$)/gim, '<h1>$1</h1>') // h1 tag
-    .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>') // bold text
-    .replace(/\*(.*)\*/gim, '<i>$1</i>') // italic text
-    .replace(tableRegex, '<table><thead><tr>$1</tr></thead><tbody>$2</tbody></table>') // table
-    .replace(/(<table>[\s\S]*<\/table>)/gm, '<div className="table-responsive">$1</div>') // table responsive
-    .replace(codeRegex, '<pre><code>$2</code></pre>') // code block
-    .replace(/(?:\r?\n)(?:\|[\s\S]*?\|)(?:\r?\n)(?:\|(?:-+:|-+:|:-+:|:-+){2,}\|)(?:\r?\n)(?:\|[\s\S]*?\|)*(?:\r?\n)?/gm, match => {
-      const rows = match.trim().split('\n').map(row => row.trim().split('|').slice(1, -1).map(cell => cell.trim()));
-      const headers = rows.shift();
-      return `
+      .replace(/^### (.*$)/gim, '<h3>$1</h3>') // h3 tag
+      .replace(/^## (.*$)/gim, '<h2>$1</h2>') // h2 tag
+      .replace(/^# (.*$)/gim, '<h1>$1</h1>') // h1 tag
+      .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>') // bold text
+      .replace(/\*(.*)\*/gim, '<i>$1</i>') // italic text
+      .replace(tableRegex, '<table><thead><tr>$1</tr></thead><tbody>$2</tbody></table>') // table
+      .replace(/(<table>[\s\S]*<\/table>)/gm, '<div className="table-responsive">$1</div>') // table responsive
+      .replace(codeRegex, '<pre><code>$2</code></pre>') // code block
+      .replace(/(?:\r?\n)(?:\|[\s\S]*?\|)(?:\r?\n)(?:\|(?:-+:|-+:|:-+:|:-+){2,}\|)(?:\r?\n)(?:\|[\s\S]*?\|)*(?:\r?\n)?/gm, match => {
+        const rows = match.trim().split('\n').map(row => row.trim().split('|').slice(1, -1).map(cell => cell.trim()));
+        const headers = rows.shift();
+        return `
         <table>
           <thead>
             <tr>${headers.map(header => `<th>${header}</th>`).join('')}</tr>
@@ -423,14 +430,96 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
           </tbody>
         </table>
       `;
-    });
+      });
+
   }
+  const toHTML3 = (message) => {
+    const tableRegex = /^(\|(?:.*?\|)+)(?:\r?\n)(\|(?:.*?\|)+)(?:\r?\n)((?::?-+:?\|)+)(?:\r?\n)((?:\|(?:.*?\|)+\r?\n)*)/gim; // table regex
+    const codeRegex = /(`{3})([\s\S]*?)(\1)/gim; // code block regex
+    return message
+      .replace(/^### (.*$)/gim, '<h3>$1</h3>') // h3 tag
+      .replace(/^## (.*$)/gim, '<h2>$1</h2>') // h2 tag
+      .replace(/^# (.*$)/gim, '<h1>$1</h1>') // h1 tag
+      .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>') // bold text
+      .replace(/\*(.*)\*/gim, '<i>$1</i>') // italic text
+      .replace(tableRegex, '<table><thead><tr>$1</tr></thead><tbody>$2</tbody></table>') // table
+      .replace(/(<table>[\s\S]*<\/table>)/gm, '<div className="table-responsive">$1</div>') // table responsive
+      .replace(codeRegex, '<pre><code>$2</code></pre>') // code block
+      .replace(/(?:\r?\n)(?:\|[\s\S]*?\|)(?:\r?\n)(?:\|(?:-+:|-+:|:-+:|:-+){2,}\|)(?:\r?\n)(?:\|[\s\S]*?\|)*(?:\r?\n)?/gm, match => {
+        const rows = match.trim().split('\n').map(row => row.trim().split('|').slice(1, -1).map(cell => cell.trim()));
+        const headers = rows.shift();
+        return `
+          <table>
+            <thead>
+              <tr>${headers.map(header => `<th>${header}</th>`).join('')}</tr>
+            </thead>
+            <tbody>
+              ${rows.map(cells => `<tr>${cells.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}
+            </tbody>
+          </table>
+        `;
+      })
+      .replace(/<button onClick=\\"(.*?)\\" class=\\"btn btn-warning\\">Add to Cart<\/button>/gim, '<button onClick="$1" class="btn btn-warning">Add to Cart</button>');
+  };
+  const toHTML = (message) => {
+    const tableRegex = /^(\|(?:.*?\|)+)(?:\r?\n)(\|(?:.*?\|)+)(?:\r?\n)((?::?-+:?\|)+)(?:\r?\n)((?:\|(?:.*?\|)+\r?\n)*)/gim; // table regex
+    const codeRegex = /(`{3})([\s\S]*?)(\1)/gim; // code block regex
+    return message
+      .replace(/^### (.*$)/gim, '<h3>$1</h3>') // h3 tag
+      .replace(/^## (.*$)/gim, '<h2>$1</h2>') // h2 tag
+      .replace(/^# (.*$)/gim, '<h1>$1</h1>') // h1 tag
+      .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>') // bold text
+      .replace(/\*(.*)\*/gim, '<i>$1</i>') // italic text
+      .replace(tableRegex, '<table><thead><tr>$1</tr></thead><tbody>$2</tbody></table>') // table
+      .replace(/(<table>[\s\S]*<\/table>)/gm, '<div className="table-responsive">$1</div>') // table responsive
+      .replace(codeRegex, '<pre><code>$2</code></pre>') // code block
+      .replace(/(?:\r?\n)(?:\|[\s\S]*?\|)(?:\r?\n)(?:\|(?:-+:|-+:|:-+:|:-+){2,}\|)(?:\r?\n)(?:\|[\s\S]*?\|)*(?:\r?\n)?/gm, match => {
+        const rows = match.trim().split('\n').map(row => row.trim().split('|').slice(1, -1).map(cell => cell.trim()));
+        const headers = rows.shift();
+        return `
+        <table>
+          <thead>
+            <tr>${headers.map(header => `<th>${header}</th>`).join('')}</tr>
+          </thead>
+          <tbody>
+            ${rows.map(cells => `<tr>${cells.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}
+          </tbody>
+        </table>
+      `;
+      })
+      .replace(/<button class=\\"btn btn-warning\\" onClick=\{?\(\)\=\>?\{?alert\(&quot;Hello\)&quot;\}?}?>(.*?)<\/button>/gim, '<button class="btn btn-warning" onClick={()=>{alert("Hello")}}>$1</button>')
+      .replace(/<button onClick={\(\)=>{alert\(&quot;hello&quot;\)}}>add to cart<\/button>/gim, '<button onClick={()=>{alert("hello")}}>add to cart</button>');
+  }
+
   const handleKeyDown = (event) => {
     if (event.keyCode === 13 && event.shiftKey) {
       event.preventDefault();
       setInputMessage(inputMessage + '\n');
     }
   };
+  function ProductCard({ product, productState, addToCart }) {
+    return (
+      <div className="card" style={{ width: "18rem", backgroundColor: "#18191B" }}>
+        <img src={product.image_url} className="card-img-top" alt="..." />
+        <div className="card-body">
+          <h5 className="card-title">{product.name}</h5>
+          <p className="card-text">$ {productState.price}</p>
+          <button
+            onClick={() => {
+              const pd = {
+                name: product.name,
+                price: product.price,
+              };
+              addToCart(pd);
+            }}
+            className="btn btn-warning"
+          >
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    );
+  }
   function ImageModal(props) {
 
 
@@ -444,8 +533,8 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
       messageSubmitHandler(event);
       props.onClose();
     }
-    
-    
+
+
     return (
       <div id="imageModal" style={{ zIndex: 999, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }} role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
         <div className="modal-dialog" role="document">
@@ -474,32 +563,44 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
       </div>
     );
   }
-  
+
   function ProductModal(props) {
     const [productStates, setProductStates] = useState(products.map(() => ({
       price: '',
       isSending: false
     })));
-  
+
     function sendProduct(productIndex) {
       const product = products[productIndex];
 
       const productState = productStates[productIndex];
-    
+
       const newProductStates = [...productStates];
       newProductStates[productIndex] = { ...productState, isSending: true };
       setProductStates(newProductStates);
       const event = new Event("build");
-      const message=`<div class="card" style="width: 18rem; background-color: #18191B;">
-      <img src=${product.image_url} class="card-img-top" alt="...">
-      <div class="card-body">
-        <h5 class="card-title">${product.name}</h5>
-        <p class="card-text">$${productState.price}</p>
-        <a href="#" class="btn btn-primary">Buy Now</a>
-      </div>
-    </div>`;
-      console.log(message);
+      const message = `<div class='card' style='width: 18rem; background-color: #18191B;'>
+    <img src=${product.image_url} class='card-img-top' alt='...'>
+    <div class='card-body'>
+      <h5 class='card-title'>${product.name}</h5>
+      <p class='card-text'>$${productState.price}</p>
+     <a href="/payments"><button id="cost" class="btn btn-warning">Add to Cart</button></a>
       
+    </div>
+    <script>
+      const element=document.getElementById('cost');
+      console.log(element);
+      element.addEventListener("click", myFunction);
+      
+      function myFunction() {
+        console.log("Hello")
+        alert("Hello");
+      }
+      </script>
+  </div>`;
+      console.log(message);
+
+
       socket.send(
         JSON.stringify({
           action: SocketActions.MESSAGE,
@@ -510,35 +611,35 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
       );
       // Send the product
       // ...
-  
+
       // Update the state when the product has been sent
 
       const updatedProductState = { ...productState, isSending: false };
       newProductStates[productIndex] = updatedProductState;
       setProductStates(newProductStates);
     }
-  
+
     return (
-      <div style={{ zIndex: 999, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',height:'fit-content',width:'fit-content'}} role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+      <div style={{ zIndex: 999, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', height: 'fit-content', width: 'fit-content' }} role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
         <div className="modal-dialog" role="document">
-          <div className="modal-content" style={{ border: 'solid', padding: '10px', borderRadius: '5px', zIndex: 999, backgroundColor: '#18191B', color: 'white', height:'50vh',width:'50vw' }}>
+          <div className="modal-content" style={{ border: 'solid', padding: '10px', borderRadius: '5px', zIndex: 999, backgroundColor: '#18191B', color: 'white', height: '50vh', width: '50vw' }}>
             <div className="modal-header">
-              <h5 className="modal-title" style={{textAlign:'center'}} id="imageModalLabel">Send Products</h5>
+              <h5 className="modal-title" style={{ textAlign: 'center' }} id="imageModalLabel">Send Products</h5>
               <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={props.onClose}>
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
             <div className="modal-body">
               {products.map((product, index) => (
-                <div className="my-3" style={{display:'flex',display: 'flex', justifyContent: 'space-between', alignItems: 'center',  width: '48vw'}}>
-                  <img src={product?.image_url} alt="product image" height="60" width="60"/>
+                <div className="my-3" style={{ display: 'flex', display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '48vw' }}>
+                  <img src={product?.image_url} alt="product image" height="60" width="60" />
                   <h5>{product?.name}</h5>
-                  <input type="number" value={productStates[index]?.price?productStates[index]?.price:product?.price} onChange={(e) => {
+                  <input type="number" value={productStates[index]?.price ? productStates[index]?.price : product?.price} onChange={(e) => {
                     const newProductStates = [...productStates];
                     newProductStates[index] = { ...productStates[index], price: e.target.value };
                     setProductStates(newProductStates);
-                  }}/>
-                  <button className="btn btn-primary" onClick={()=>{sendProduct(index)}} disabled={productStates[index]?.isSending}>
+                  }} />
+                  <button className="btn btn-primary" onClick={() => { sendProduct(index) }} disabled={productStates[index]?.isSending}>
                     {productStates[index]?.isSending ? 'Sending...' : 'SEND'}
                   </button>
                 </div>
@@ -549,11 +650,27 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
       </div>
     );
   }
-  
-  function ToolKit(props){
+
+  function ToolKit(props) {
     return (
-      <div style={{backgroundColor:'#18191B',border:'solid',padding:'20px'}}>
-          <div 
+
+
+      <div style={{ boxShadow: '0 0 10px rgba(159, 119, 235, 0.5)', transition: "height 0.3s ease", backgroundColor: '#18191B', padding: '20px' }}>
+        {!tools ?
+          <div
+
+            className="btn"
+            onClick={() => {
+              setTools(true)
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-nut-fill" viewBox="0 0 16 16">
+              <path d="M4.58 1a1 1 0 0 0-.868.504l-3.428 6a1 1 0 0 0 0 .992l3.428 6A1 1 0 0 0 4.58 15h6.84a1 1 0 0 0 .868-.504l3.429-6a1 1 0 0 0 0-.992l-3.429-6A1 1 0 0 0 11.42 1H4.58zm5.018 9.696a3 3 0 1 1-3-5.196 3 3 0 0 1 3 5.196z" />
+            </svg>
+
+          </div> :
+          <div>
+            <div
               onClick={addSnippet}
               className="btn"
             >
@@ -574,22 +691,22 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
               </svg>
             </div>
             <div
-           
+
               className="btn"
-              onClick={()=>{
+              onClick={() => {
                 setCalcModal(true)
               }}
             >
-             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-calculator-fill" viewBox="0 0 16 16">
-  <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm2 .5v2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5zm0 4v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zM4.5 9a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM4 12.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zM7.5 6a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM7 9.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm.5 2.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM10 6.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm.5 2.5a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 0-.5-.5h-1z"/>
-</svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-calculator-fill" viewBox="0 0 16 16">
+                <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm2 .5v2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5zm0 4v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zM4.5 9a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM4 12.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zM7.5 6a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM7 9.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm.5 2.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM10 6.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm.5 2.5a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 0-.5-.5h-1z" />
+              </svg>
 
             </div>
             <div className="btn" onClick={() => {
               if (snippets) setSnippets([]);
             }}>
-              
-            
+
+
               <svg style={{ color: 'white' }} xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-trash-fill" viewBox="0 0 16 16">
                 <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
               </svg>
@@ -601,22 +718,22 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
               className="btn"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-pencil-square" viewBox="0 0 16 16">
-  <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-  <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
-</svg>
+                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+              </svg>
             </div>
             <div
-  
+
               className="btn"
-              onClick={()=>{
-                let open=isOpen;
+              onClick={() => {
+                let open = isOpen;
                 setIsOpen(!open);
               }}
             >
-             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
-  <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-  <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
-</svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
+              </svg>
             </div>
             <div className="btn" onClick={handleOpenProductModal}>
               <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-cart" viewBox="0 0 16 16">
@@ -629,23 +746,27 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
                 <path d="M8.5 1.866a1 1 0 1 0-1 0V3h-2A4.5 4.5 0 0 0 1 7.5V8a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1v1a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1v-.5A4.5 4.5 0 0 0 10.5 3h-2V1.866ZM14 7.5V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.5A3.5 3.5 0 0 1 5.5 4h5A3.5 3.5 0 0 1 14 7.5Z" />
               </svg>
             </div>
-            <div className="btn">
-              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-gear-fill" viewBox="0 0 16 16">
-                <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z" />
+            <div className="btn" onClick={() => {
+              setTools(false)
+            }}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-dash-circle-fill" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z" />
               </svg>
             </div>
+          </div>
+        }
       </div>
     );
   }
-  const closeCalcModal=()=>{
+  const closeCalcModal = () => {
 
     setCalcModal(false);
   }
   return (
-    <div  className=" col-12 col-sm-8 col-md-8 col-lg-8 col-xl-10 pl-0 pr-0">
-       { isOpen && userInfo &&
-       <Sidebar  userInfo={userInfo} />
-        }
+    <div className=" col-12 col-sm-8 col-md-8 col-lg-8 col-xl-10 pl-0 pr-0">
+      {isOpen && userInfo &&
+        <Sidebar userInfo={userInfo} />
+      }
       <div style={{ position: 'absolute', top: '2%', right: '2%', display: 'flex', gap: '10px' }} >
 
         {snippets.map((snippet, index) => (
@@ -660,20 +781,20 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
         <ProductModal onClose={handleProductModalClose} />
       )}
       {showModal && (
-        <TextProcess  showModal={showModal} handleCloseModal={handleCloseModal} />
+        <TextProcess showModal={showModal} handleCloseModal={handleCloseModal} />
       )}
       {calcModal && (
-         <div style={{position:'absolute',top:'50%',left:'50%'}}>
-            <Calculator handleCloseCalclModal={closeCalcModal}/> 
-         </div>
+        <div style={{ position: 'absolute', top: '50%', left: '50%' }}>
+          <Calculator handleCloseCalclModal={closeCalcModal} />
+        </div>
       )}
       <div
-      style={{ position: 'absolute',zIndex:'9999999',left: position.x, top: position.y }}
-      onMouseDown={handleMouseDown}
-    >
-      <ToolKit/>
-     
-    </div>
+        style={{ position: 'absolute', zIndex: '9999999', left: position.x, top: position.y }}
+        onMouseDown={handleMouseDown}
+      >
+        <ToolKit />
+
+      </div>
       <div style={{ backgroundColor: 'rgb(37, 56, 81)' }} className="py-2 px-4  d-none d-lg-block">
 
         <div className="d-flex align-items-center py-1">
@@ -711,11 +832,11 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
           </div>
           <div className="flex-grow-1 pl-3">
             <strong>{currentChattingMember?.name}</strong>
-            <b>{ owner ?`(Business)`:''}</b>
+            <b>{owner ? `(Business)` : ''}</b>
           </div>
         </div>
       </div>
-      
+
       <div className="position-relative">
 
         <div
@@ -735,7 +856,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
 
           {messages?.results?.map((message, index) => (
             (message?.message || message?.image_data) && (
-              <div key={index} style={{transition:'opacity 0.5 ease'}} className={getChatMessageClassName(message.user)}>
+              <div key={index} style={{ transition: 'opacity 0.5 ease' }} className={getChatMessageClassName(message.user)}>
                 <div>
                   <img
                     src={message.userImage}
@@ -745,7 +866,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
                     height="40"
                   />
                   <div className="text-muted small text-nowrap mt-2">
-                    
+
                   </div>
                 </div>
                 <div style={{ backgroundColor: '#1C2A39' }} className="flex-shrink-1 ml-1 rounded py-2 px-3 mr-3">
@@ -783,9 +904,9 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
                   ) : (
                     <div dangerouslySetInnerHTML={{ __html: toHTML(message?.message) }}></div>
                   )}
-                <div style={{position:'relative',height:'30px'}}>
-                <p style={{ position:'absolute',bottom:'-50%',right:'0',color: 'white !important' }}>{CommonUtil.getTimeFromDate(message.timestamp)}</p>
-                </div>
+                  <div style={{ position: 'relative', height: '30px' }}>
+                    <p style={{ position: 'absolute', bottom: '-50%', right: '0', color: 'white !important' }}>{CommonUtil.getTimeFromDate(message.timestamp)}</p>
+                  </div>
                 </div>
               </div>
             )
@@ -793,21 +914,21 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
           ))}
         </div>
       </div>
-      
+
       <div id="tools" style={{ backgroundColor: '#27292D' }} className="flex-grow-0 py-3 px-4 ">
         <form style={{ width: '80vw' }} onSubmit={messageSubmitHandler}>
           <div style={{ display: 'flex', gap: '15px' }}>
             <textarea
-             
+
               onChange={(event) => setInputMessage(event.target.value)}
               onKeyUp={chatMessageTypingHandler}
               value={inputMessage}
               onKeyDown={handleKeyDown}
-              style={{ backgroundColor:'#18191B',height: '50px', resize: 'none',color:'white' }}
+              style={{ backgroundColor: '#18191B', height: '50px', resize: 'none', color: 'white' }}
               id="chat-message-input"
               type="text"
               className="form-control"
-          
+
               autoComplete="off"
             />
             <button
@@ -888,7 +1009,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
 
         </form>
       </div>
-   
+
     </div>
   );
 };
