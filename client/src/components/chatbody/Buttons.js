@@ -4,6 +4,7 @@ import "./styles/Buttons.css";
 
 const Buttons = ({ inputHandler, clearInput, backspace, changePlusMinus, calculateAns }) => {
   document.addEventListener("keydown", function (event) {
+    
     if (event.key === "Enter") {
       event.preventDefault();
       document.getElementById("equalbtn").click();
@@ -96,7 +97,7 @@ const Buttons = ({ inputHandler, clearInput, backspace, changePlusMinus, calcula
       <button id="calc_btn" className="btn exp" onClick={inputHandler}>
         .
       </button>
-      <button  id="calc_btn"className="btn exp equal" id="equalbtn" onClick={calculateAns}>
+      <button  id="calc_btn"className="btn exp equal"  onClick={calculateAns}>
         =
       </button>
     </div>
