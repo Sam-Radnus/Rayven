@@ -1,5 +1,5 @@
 from django.urls import path
-from apps.user.views import UserView, LoginApiView, SignupApiView , my_view,get_user_details,create_product,getProducts
+from apps.user.views import UserView, LoginApiView, SignupApiView , my_view,get_user_details,create_product,getProducts,changePrice
 
 urlpatterns = [
 	path('users', UserView.as_view(), name='userList'),
@@ -7,5 +7,6 @@ urlpatterns = [
 	path('signup', SignupApiView.as_view(), name='signup'),
     path('getUserProfile',get_user_details,name="myview"),
     path('create_product',create_product,name="create product"),
-    path('getProducts',getProducts,name='get products')
+    path('getProducts',getProducts,name='get products'),
+    path('changePrice/',changePrice,name="change_price")
 ]

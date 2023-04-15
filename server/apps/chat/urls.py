@@ -7,5 +7,6 @@ urlpatterns = [
 	path('users/<int:userId>/chats', ChatRoomView.as_view(), name='chatRoomList'),
     path('sentiment/',get_sentiment,name="get_sentiment"),
     path('response/',openai_response,name="get_responses"),
-    path('isShopOwner/',get_status,name="get status")
+    path('isShopOwner/',get_status,name="get status"),
+   
 ]

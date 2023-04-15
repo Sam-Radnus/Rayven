@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./sidebar.css";
-import { Link ,useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import CookieUtil from "../../util/cookieUtil";
 import AppPaths from "../../lib/appPaths";
 import ApiConnector from "../../api/apiConnector";
@@ -10,26 +10,27 @@ import Constants from "../../lib/constants";
 import Modal from "../modal/modal";
 import { ReactCalculator } from "simple-react-calculator";
 const Sidebar = (props) => {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const [chatUsers, setChatUsers] = useState([]); //sidebar users
   const [users, setUsers] = useState([]); //popup users
   const [isShowAddPeopleModal, setIsShowAddPeopleModal] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [toolbar, setToolBar] = useState(true);
   const redirectUserToDefaultChatRoom = (chatUsers) => {
     console.log(1);
     if (window.location.pathname === AppPaths.HOME) {
-      
+
       props.setCurrentChattingMember(chatUsers[0]);
       navigate("/c/" + chatUsers[0].roomId);
     } else {
-      
+
       const activeChatId = window.location.pathname.slice(3,);
       console.log(activeChatId)
       const chatUser = chatUsers.find((user) => user.roomId === activeChatId);
-      
+
       props.setCurrentChattingMember(chatUser);
     }
-  }; 
+  };
   const handleMouseDown = (event) => {
     const startX = event.pageX - position.x;
     const startY = event.pageY - position.y;
@@ -126,44 +127,68 @@ const Sidebar = (props) => {
   };
 
   return (
-    <div className="col-12 col-sm-4 col-md-4 col-lg-4 col-xl-2">
-       <div onMouseDown={handleMouseDown}style={{border:'solid',minHeight:'fit-content',minWidth:'fit-content',position: 'absolute', left: position.x, top: position.y,zIndex:'100000',padding:'10px',backgroundColor:'#18191B',borderColor:'white',position:'absolute'}}>
-       <div>
-       <button
-          onClick={addPeopleClickHandler}
-          className="btn"
-          id="add_people"
-          
-        >
-          Add People
-        </button>
-        </div> 
-        <div>
-        <button
-        onClick={logoutClickHandler}
-        id="add_people"
-        className="btn"
-      >
-        Log Out
-      </button>
-      </div>
-      <div onClick={()=>{
+    <div style={{ borderRight: 'solid', borderWidth: '1px', borderColor: '#9F76EB' }} className="col-12 col-sm-4 col-md-4 col-lg-4 col-xl-2">
+
+      <div onMouseDown={handleMouseDown} style={{ boxShadow: '0 0 10px rgba(159, 119, 235, 0.5)', minHeight: 'fit-content', minWidth: 'fit-content', position: 'absolute', left: position.x, top: position.y, zIndex: '100000', padding: '10px', backgroundColor: '#18191B', borderColor: 'white', height: !toolbar ? '200px' : '81px', width: '90px', position: 'absolute' }}>
+        {toolbar ?
+          <div style={{ transition: "height 0.3s ease-in-out" }} className="btn mx-2 my-2" onClick={() => {
+            setToolBar(false)
+          }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-chevron-expand" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M3.646 9.146a.5.5 0 0 1 .708 0L8 12.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zm0-2.292a.5.5 0 0 0 .708 0L8 3.207l3.646 3.647a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 0 0 0 .708z" />
+            </svg>
+          </div>
+          :
+
+          <div>
+
+            <div style={{ transition: "height 0.3s ease-in-out" }}>
+              <button
+                onClick={addPeopleClickHandler}
+                className="btn"
+                id="add_people"
+
+              >
+                Add People
+              </button>
+            </div>
+
+            <div style={{ transition: "height 0.3s ease-in-out" }}>
+              <button
+                onClick={logoutClickHandler}
+                id="add_people"
+                className="btn"
+              >
+                Log Out
+              </button>
+            </div>
+            <div onClick={() => {
               navigate('/products')
-       }}  style={{borderRadius:'5px',cursor:'pointer',textAlign:'center'}} id="add_people">
-         <svg style={{color:'#18191B !important'}} xmlns="http://www.w3.org/2000/svg" width="26" height="26"  className="bi bi-box-arrow-left" viewBox="0 0 16 16">
-           <path fill-rule="evenodd" d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0v2z"/>
-           <path fill-rule="evenodd" d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"/>
-         </svg>
-      </div>
+            }} style={{ borderRadius: '5px', cursor: 'pointer', textAlign: 'center', transition: "height 0.3s ease-in-out" }} id="add_people">
+              <svg style={{ color: '#18191B !important' }} xmlns="http://www.w3.org/2000/svg" width="26" height="26" className="bi bi-box-arrow-left" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0v2z" />
+                <path fill-rule="evenodd" d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z" />
+              </svg>
+            </div>
+            <div style={{ borderRadius: '5px', cursor: 'pointer', textAlign: 'center', padding: '5px', transition: "height 0.3s ease-in-out" }} id="add_people" onClick={() => {
+              setToolBar(true)
+            }}>
+              <svg style={{ color: '#18191B !important' }} xmlns="http://www.w3.org/2000/svg" width="26" height="26" className="bi bi-dash-circle-fill" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z" />
+              </svg>
+            </div>
+
+          </div>
+        }
       </div>
       <div className="d-none d-md-block">
-      
+
       </div>
-     <div style={{height:'100px',width:'300px'}}>
-   </div>
+      <div style={{ height: '100px', width: '300px' }}>
+      </div>
       <div className="user-list-container mt-3">
         {getChatListWithOnlineUser()?.map((chatUser) => {
-         
+
           return (
             <Link
               onClick={() => props.setCurrentChattingMember(chatUser)}
@@ -174,10 +199,10 @@ const Sidebar = (props) => {
               }
               key={chatUser.id}
             >
-              <div className="d-flex align-items-start">
+              <div style={{ border: 'solid', borderWidth: '1px', borderColor: '#9F76EB', padding: '10px' }} className="d-flex align-items-start">
                 <img
                   src={chatUser.image}
-                  style={{border:'solid',borderColor:`${chatUser.isOnline?'#14B86C':'#9F77EB'}`}}
+                  style={{ border: 'solid', borderColor: `${chatUser.isOnline ? '#14B86C' : '#9F77EB'}` }}
                   className="rounded-circle mr-1"
                   alt={chatUser.name}
                   width="40"
@@ -188,7 +213,7 @@ const Sidebar = (props) => {
                   <div className="small">
                     {chatUser.isOnline ? (
                       <>
-                        <span stlye={{color:'#14B86C !important'}} className="fas fa-circle chat-online "></span>{" "}
+                        <span stlye={{ color: '#14B86C !important' }} className="fas fa-circle chat-online "></span>{" "}
                         Online
                       </>
                     ) : (
@@ -199,14 +224,15 @@ const Sidebar = (props) => {
                     )}
                   </div>
                 </div>
+                <span style={{ color: 'rgb(87, 97, 104)' }}>12:43 PM</span>
               </div>
             </Link>
           );
         })}
       </div>
-      
+
       <hr className="d-block d-lg-none mt-1 mb-0" />
-      
+
       <Modal
         modalCloseHandler={() => setIsShowAddPeopleModal(false)}
         show={isShowAddPeopleModal}

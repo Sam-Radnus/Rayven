@@ -163,6 +163,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
 
     console.log(currentChattingMember);
     const user_id = currentChattingMember?.id
+    sessionStorage.setItem('business_id',currentChattingMember?.id);
     console.log(user_id);
     getUserDetails();
     axios.post('http://127.0.0.1:8000/api/v1/isShopOwner/', {
@@ -566,15 +567,26 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
 
   function ProductModal(props) {
     const [productStates, setProductStates] = useState(products.map(() => ({
+      name: '',
+      id:'',
       price: '',
       isSending: false
     })));
-
+    const alterProduct=async(product)=>{
+      console.log(product);
+      const change=await axios.post("http://127.0.0.1:8000/api/v1/changePrice/",{
+        "id":product.id,
+        "price":product.price
+      })
+      console.log(change);
+    }
+    
     function sendProduct(productIndex) {
       const product = products[productIndex];
-
+      
       const productState = productStates[productIndex];
-
+      console.log(productState);
+      alterProduct(productState);
       const newProductStates = [...productStates];
       newProductStates[productIndex] = { ...productState, isSending: true };
       setProductStates(newProductStates);
@@ -600,7 +612,8 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
   </div>`;
       console.log(message);
 
-
+      
+      setProductStates(newProductStates);
       socket.send(
         JSON.stringify({
           action: SocketActions.MESSAGE,
@@ -613,10 +626,11 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
       // ...
 
       // Update the state when the product has been sent
-
+      
       const updatedProductState = { ...productState, isSending: false };
+      console.log(updatedProductState)
       newProductStates[productIndex] = updatedProductState;
-      setProductStates(newProductStates);
+      setProductModal(false);
     }
 
     return (
@@ -631,13 +645,18 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
             </div>
             <div className="modal-body">
               {products.map((product, index) => (
+                
                 <div className="my-3" style={{ display: 'flex', display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '48vw' }}>
+                 
                   <img src={product?.image_url} alt="product image" height="60" width="60" />
                   <h5>{product?.name}</h5>
                   <input type="number" value={productStates[index]?.price ? productStates[index]?.price : product?.price} onChange={(e) => {
                     const newProductStates = [...productStates];
-                    newProductStates[index] = { ...productStates[index], price: e.target.value };
+                    
+                    newProductStates[index] = { ...productStates[index], id:product?.id,name:product?.name,price: e.target.value };
+                  
                     setProductStates(newProductStates);
+                    
                   }} />
                   <button className="btn btn-primary" onClick={() => { sendProduct(index) }} disabled={productStates[index]?.isSending}>
                     {productStates[index]?.isSending ? 'Sending...' : 'SEND'}
@@ -655,7 +674,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
     return (
 
 
-      <div style={{ boxShadow: '0 0 10px rgba(159, 119, 235, 0.5)', transition: "height 0.3s ease", backgroundColor: '#18191B', padding: '20px' }}>
+      <div style={{ boxShadow: '0 0 10px rgba(159, 119, 235, 0.5)', width:tools?'200px':'90px',transition: "height 0.3s ease", backgroundColor: '#18191B', padding: '20px' }}>
         {!tools ?
           <div
 
@@ -669,7 +688,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
             </svg>
 
           </div> :
-          <div>
+          <div >
             <div
               onClick={addSnippet}
               className="btn"
@@ -824,14 +843,15 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
 
             <img
               src={currentChattingMember?.image}
+              style={{border:'solid',borderColor:'#9F77EB'}}
               className="rounded-circle mr-1"
               alt="User"
               width="40"
               height="40"
             />
           </div>
-          <div className="flex-grow-1 pl-3">
-            <strong>{currentChattingMember?.name}</strong>
+          <div style={{fontSize:'20px'}} className="flex-grow-1 pl-3">
+            <strong >{currentChattingMember?.name}</strong>
             <b>{owner ? `(Business)` : ''}</b>
           </div>
         </div>
@@ -924,7 +944,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
               onKeyUp={chatMessageTypingHandler}
               value={inputMessage}
               onKeyDown={handleKeyDown}
-              style={{ backgroundColor: '#18191B', height: '50px', resize: 'none', color: 'white' }}
+              style={{ backgroundColor: '#344153',paddingTop:'13px',borderRadius:'30px', height: '50px', resize: 'none', color: 'white' }}
               id="chat-message-input"
               type="text"
               className="form-control"

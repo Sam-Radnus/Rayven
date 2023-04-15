@@ -1,10 +1,12 @@
 import React,{useState,useEffect} from 'react'
 import CommonUtil from '../../util/commonUtil'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 const PaymentPage = () => {
+    const navigate=useNavigate();
     const [products,setProducts]=useState([]);
     const [productState, setProductState] = useState([]);
-
+    const [totalPrice, setTotalPrice] = useState(0);
   const handleQuantityChange = (index, event) => {
     
     const newQuantity = event.target.value;
@@ -15,10 +17,21 @@ const PaymentPage = () => {
       newState[index] = { quantity: newQuantity, price: newTotalPrice };
       return newState;
     });
+    let newFinal = productState.reduce((total, product) => {
+      return total + product.price * product.quantity;
+    }, 0);
+    setTotalPrice(newFinal);
   };
+  useEffect(() => {
+    let newFinal = productState.reduce((total, product) => {
+      return total + product.price * product.quantity;
+    }, 0);
+    setTotalPrice(newFinal);
+  }, [productState]);
     const getProducts = async () => {
     
-        console.warn(CommonUtil.getUserId());
+        // console.warn(CommonUtil.getUserId());
+        const business_id=sessionStorage.getItem('business_id');
         try {
 
 
@@ -27,7 +40,7 @@ const PaymentPage = () => {
                 "http://127.0.0.1:8000/api/v1/getProducts",
                 {
 
-                    'user_id': `${CommonUtil.getUserId()}`
+                    'user_id': `${business_id}`
 
                 }
             );
@@ -66,9 +79,9 @@ const PaymentPage = () => {
             <thead>
               <tr>
                 <th scope="col" class="h5">Shopping Bag</th>
-                <th scope="col">Format</th>
+                <th scope="col">Current Price</th>
                 <th scope="col">Quantity</th>
-                <th scope="col">Price</th>
+                <th scope="col">Selected Price</th>
               </tr>
             </thead>
             <tbody>
@@ -85,27 +98,21 @@ const PaymentPage = () => {
                   </div>
                 </th>
                 <td class="align-middle">
-                  <p class="mb-0" style={{fontWeight: "500"}}>Digital</p>
+                  <p class="mb-0" style={{fontWeight: "500"}}>${product.price}</p>
                 </td>
                 <td class="align-middle">
                   <div class="d-flex flex-row">
-                    <button class="btn btn-link px-2"
-                      onclick="this.parentNode.querySelector('input[type=number]').stepDown()">
-                      <i class="fas fa-minus"></i>
-                    </button>
+                    
 
                     <input id="form1" min="0" name="quantity"  type="number"
-                      class="form-control form-control-sm" style={{width: "50px"}}  value={productState[index] ? productState[index]?.quantity:0}
+                      class="form-control form-control-sm" style={{width: "50px",backgroundColor:'white'}}  value={productState[index] ? productState[index]?.quantity:0}
                       onChange={(event) => handleQuantityChange(index, event)
                       }/>
 
-                    <button class="btn btn-link px-2"
-                      onclick="this.parentNode.querySelector('input[type=number]').stepUp()">
-                      <i class="fas fa-plus"></i>
-                    </button>
+                    
                   </div>
                 </td>
-                <td>${productState[index] ? productState[index].price:''}</td>
+                <td class="align-middle">${productState[index] ? productState[index].price*productState[index].quantity:0}</td>
               </tr>
             ))  }
             </tbody>
@@ -158,26 +165,26 @@ const PaymentPage = () => {
                 <div class="row">
                   <div class="col-12 col-xl-6">
                     <div class="form-outline mb-4 mb-xl-5">
-                      <input type="text" id="typeName" class="form-control form-control-lg" siez="17"
+                      <input type="text" id="typeName" class="form-control form-control-lg bg-light" siez="17"
                         placeholder="John Smith" />
                       <label class="form-label" for="typeName">Name on card</label>
                     </div>
 
                     <div class="form-outline mb-4 mb-xl-5">
-                      <input type="text" id="typeExp" class="form-control form-control-lg" placeholder="MM/YY"
+                      <input type="text" id="typeExp" class="form-control form-control-lg bg-light" placeholder="MM/YY"
                         size="7"  minlength="7" maxlength="7" />
                       <label class="form-label" for="typeExp">Expiration</label>
                     </div>
                   </div>
                   <div class="col-12 col-xl-6">
                     <div class="form-outline mb-4 mb-xl-5">
-                      <input type="text" id="typeText" class="form-control form-control-lg" siez="17"
+                      <input type="text" id="typeText" class="form-control form-control-lg bg-light" siez="17"
                         placeholder="1111 2222 3333 4444" minlength="19" maxlength="19" />
                       <label class="form-label" for="typeText">Card Number</label>
                     </div>
 
                     <div class="form-outline mb-4 mb-xl-5">
-                      <input type="password" id="typeText" class="form-control form-control-lg"
+                      <input type="password" id="typeText" class="form-control form-control-lg bg-light"
                         placeholder="&#9679;&#9679;&#9679;" size="1" minlength="3" maxlength="3" />
                       <label class="form-label" for="typeText">Cvv</label>
                     </div>
@@ -187,25 +194,27 @@ const PaymentPage = () => {
               <div class="col-lg-4 col-xl-3">
                 <div class="d-flex justify-content-between" style={{fontWeight: 500}}>
                   <p class="mb-2">Subtotal</p>
-                  <p class="mb-2">$23.49</p>
+                  <p class="mb-2">${totalPrice}</p>
                 </div>
 
                 <div class="d-flex justify-content-between" style={{fontWeight: 500}}>
                   <p class="mb-0">Shipping</p>
-                  <p class="mb-0">$2.99</p>
+                  <p class="mb-0">${(totalPrice*0.02).toFixed(2)}</p>
                 </div>
 
                
 
                 <div class="d-flex justify-content-between mb-4" style={{fontWeight: 500}}>
                   <p class="mb-2">Total (tax included)</p>
-                  <p class="mb-2">$26.48</p>
+                  <p class="mb-2">${totalPrice +(totalPrice*0.02)}</p>
                 </div>
 
                 <button type="button" class="btn btn-primary btn-block btn-lg">
-                  <div class="d-flex justify-content-between">
+                  <div onClick={()=>{
+                    navigate('/Success');
+                  }} class="d-flex justify-content-between">
                     <span>Checkout</span>
-                    <span>$26.48</span>
+                    <span>${(totalPrice +(totalPrice*0.02)).toFixed(2)}</span>
                   </div>
                 </button>
 

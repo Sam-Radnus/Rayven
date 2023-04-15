@@ -6,6 +6,7 @@ import SignupScreen from "./screens/auth/signup/SignupScreen";
 import AppPaths from "./lib/appPaths";
 import ProductsPage from "./components/chatbody/ProductsPage";
 import PaymentPage from "./components/chatbody/PaymentPage";
+import Success from "./components/chatbody/Success";
 export default function MyRoutes() {
   return (
     <Router>
@@ -16,6 +17,7 @@ export default function MyRoutes() {
         <Route path={AppPaths.SIGN_UP} element={<SignupScreen />} />
         <Route path={AppPaths.PRODUCTS_PAGE} element={<ProductsPage/>} />
         <Route path={AppPaths.PAYMENT_PAGE} element={<PaymentPage/>} />
+        <Route path={AppPaths.SUCCESS} element={<Success/>} />
       </Routes>
     </Router>
   );

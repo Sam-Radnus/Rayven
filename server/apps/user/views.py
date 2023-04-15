@@ -218,4 +218,29 @@ def getProducts(request):
             return JsonResponse({'error':'occurred'})
     else:
          return JsonResponse({'error':'Invalid Operation'})   
-    
+
+@csrf_exempt
+def changePrice(request):
+    print(1)
+    if request.method == 'POST':
+        try:
+           body_bytes=request.body 
+           print(2)
+           print(body_bytes)
+           request_data=json.loads(body_bytes)
+           print(request_data)
+           product_id=int(request_data['id'])
+           product_price=int(request_data['price'])
+           product=Product.objects.filter(id=product_id).first()
+
+           print(product) 
+           if product:
+              product.price=product_price
+              product.save()
+              return JsonResponse({'success':True})
+           else :
+              return JsonResponse({'error':'Product Not Found'})
+        except:
+           print("error")
+           return JsonResponse({'error':'Product Not Found'}) 
+    return JsonResponse({'error':'Invalid Request'})
