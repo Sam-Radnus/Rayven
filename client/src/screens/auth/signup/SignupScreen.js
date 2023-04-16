@@ -1,12 +1,13 @@
-import React, { useRef } from "react";
+import React, { useState,useRef } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import ApiConnector from "../../../api/apiConnector";
 import ApiEndpoints from "../../../api/apiEndpoints";
 import AppPaths from "../../../lib/appPaths";
 import "../authStyle.css";
-
-const SignupScreen = ({ history }) => {
+import { useNavigate } from 'react-router-dom';
+const SignupScreen = () => {
+  const navigate=useNavigate();
   const {
     register,
     handleSubmit,
@@ -16,7 +17,7 @@ const SignupScreen = ({ history }) => {
   const password = useRef({});
   password.current = watch("password");
   const image = watch("image");
-
+  const [accountType, setAccountType] = useState("");
   const onSubmit = async (signupData) => {
     const formData = new FormData();
     formData.append("image", signupData.image[0]);
@@ -24,6 +25,7 @@ const SignupScreen = ({ history }) => {
     Object.keys(signupData).forEach((key) => {
       formData.append(key, signupData[key]);
     });
+    formData.append("is_shop_owner", accountType==='Customer'?false:true);
     const successSignupData = await ApiConnector.sendPostRequest(
       ApiEndpoints.SIGN_UP_URL,
       formData,
@@ -31,10 +33,11 @@ const SignupScreen = ({ history }) => {
       true
     );
     if (successSignupData) {
-      history.push({
-        pathname: AppPaths.LOGIN,
-        state: { redirectFrom: AppPaths.SIGN_UP },
-      });
+      // history.push({
+      //   pathname: AppPaths.LOGIN,
+      //   state: { redirectFrom: AppPaths.SIGN_UP },
+      // });
+      navigate(AppPaths.LOGIN);
     }
   };
 
@@ -76,10 +79,10 @@ const SignupScreen = ({ history }) => {
               <p className="requiredFieldError">This field is required</p>
             )}
           </div>
-          <div className="custom-file">
+          <div>
             <input
-              className="bg-dark"
-              style={{ backgroundColor: '#344153' }}
+
+              style={{ backgroundColor: '#344153', maxWidth: '19.5vw', overflow: 'hidden', borderRadius: '15px' }}
               type="file"
               name="image"
               id="validatedCustomFile"
@@ -87,16 +90,22 @@ const SignupScreen = ({ history }) => {
                 required: true,
               })}
             />
-            <label className="custom-file-label" htmlFor="validatedCustomFile">
-              {image ? image[0]?.name : "Choose Image..."}
-            </label>
+
             {errors.image && (
               <p className="requiredFieldError mt-2">This field is required</p>
             )}
           </div>
-          <div className="authFieldContainer">
-            <select style={{color:'black'}} className="form-select form-select mb-3 bg-dark" aria-label=".form-select-lg example">
-              <option style={{color:'black'}} selected>Open this select menu</option>
+          <div style={{ color: 'white' }} className="authFieldContainer">
+            <select
+              className="form-select form-select mb-3 bg-dark"
+              style={{color:'white'}}
+              aria-label=".form-select-lg example"
+              value={accountType}
+              onChange={(e) => setAccountType(e.target.value)}
+              required
+            >
+
+              <option style={{ color: 'white' }} selected>Account Type</option>
               <option value="1">Customer</option>
               <option value="2">Shopowner</option>
             </select>

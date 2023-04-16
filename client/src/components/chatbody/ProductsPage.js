@@ -31,9 +31,14 @@ const ProductsPage = () => {
         };
         reader.onerror = (event) => {
             console.error(`FileReader error: ${event.target.error}`);
-        };
-        handleModalClose();
-        window.location.reload(); 
+        }
+        setTimeout(()=>{
+            window.location.reload(); 
+            handleModalClose();
+        },2000)
+        
+        
+       
     }
     const handleImageChange = (event) => {
         setImage(event.target.files[0]);
@@ -127,23 +132,23 @@ const ProductsPage = () => {
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        {modal && <div class="modal-body">
+                        {modal && <div  class="modal-body">
                             <form>
                                 <div class="form-group">
                                     <label for="productName">Name of Product:</label>
-                                    <input type="text" value={name} class="form-control" onChange={(e) => {
+                                    <input type="text" value={name} style={{color:'white'}} class="form-control" onChange={(e) => {
                                         setName(e.target.value);
                                     }} id="productName" placeholder="Enter product name" />
                                 </div>
                                 <div class="form-group">
                                     <label for="productPrice">Price of Product:</label>
-                                    <input type="number" value={price} class="form-control" onChange={(e) => {
+                                    <input type="number" style={{color:'white'}} value={price} class="form-control" onChange={(e) => {
                                         setPrice(e.target.value);
                                     }} id="productPrice" placeholder="Enter product price" />
                                 </div>
                                 <div class="form-group">
                                     <label for="productImage">Product Image:</label>
-                                    <input type="file" class="form-control-file" onChange={handleImageChange} id="productImage" />
+                                    <input style={{color:'white'}} type="file" class="form-control-file" onChange={handleImageChange} id="productImage" />
                                 </div>
                             </form>
                         </div>

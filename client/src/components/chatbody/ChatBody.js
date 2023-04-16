@@ -7,9 +7,11 @@ import SocketActions from "../../lib/socketActions";
 import CommonUtil from "../../util/commonUtil";
 import CookieUtil from "../../util/cookieUtil";
 import "./chatBodyStyle.css";
+import { Resizable, ResizableBox } from 'react-resizable';
+
+import "./TextProcess.css"
 import Modal from "react-bootstrap/Modal";
 import { useNavigate } from "react-router-dom";
-
 import Calculator from "./Calculator";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Chart from "./Chart";
@@ -41,6 +43,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [userInfo, setUserInfo] = useState({});
   const [tools, setTools] = useState(false);
+  const [box,setBox]=useState(false);
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   }
@@ -460,7 +463,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
           </table>
         `;
       })
-      .replace(/<button onClick=\\"(.*?)\\" class=\\"btn btn-warning\\">Add to Cart<\/button>/gim, '<button onClick="$1" class="btn btn-warning">Add to Cart</button>');
+      .replace(/<button onClick=\\"(.*?)\\" className=\\"btn btn-warning\\">Add to Cart<\/button>/gim, '<button onClick="$1" className="btn btn-warning">Add to Cart</button>');
   };
   const toHTML = (message) => {
     const tableRegex = /^(\|(?:.*?\|)+)(?:\r?\n)(\|(?:.*?\|)+)(?:\r?\n)((?::?-+:?\|)+)(?:\r?\n)((?:\|(?:.*?\|)+\r?\n)*)/gim; // table regex
@@ -488,7 +491,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
         </table>
       `;
       })
-      .replace(/<button class=\\"btn btn-warning\\" onClick=\{?\(\)\=\>?\{?alert\(&quot;Hello\)&quot;\}?}?>(.*?)<\/button>/gim, '<button class="btn btn-warning" onClick={()=>{alert("Hello")}}>$1</button>')
+      .replace(/<button className=\\"btn btn-warning\\" onClick=\{?\(\)\=\>?\{?alert\(&quot;Hello\)&quot;\}?}?>(.*?)<\/button>/gim, '<button className="btn btn-warning" onClick={()=>{alert("Hello")}}>$1</button>')
       .replace(/<button onClick={\(\)=>{alert\(&quot;hello&quot;\)}}>add to cart<\/button>/gim, '<button onClick={()=>{alert("hello")}}>add to cart</button>');
   }
 
@@ -683,7 +686,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
               setTools(true)
             }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-nut-fill" viewBox="0 0 16 16">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-nut-fill" viewBox="0 0 16 16">
               <path d="M4.58 1a1 1 0 0 0-.868.504l-3.428 6a1 1 0 0 0 0 .992l3.428 6A1 1 0 0 0 4.58 15h6.84a1 1 0 0 0 .868-.504l3.429-6a1 1 0 0 0 0-.992l-3.429-6A1 1 0 0 0 11.42 1H4.58zm5.018 9.696a3 3 0 1 1-3-5.196 3 3 0 0 1 3 5.196z" />
             </svg>
 
@@ -716,7 +719,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
                 setCalcModal(true)
               }}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-calculator-fill" viewBox="0 0 16 16">
+              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-calculator-fill" viewBox="0 0 16 16">
                 <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm2 .5v2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5zm0 4v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zM4.5 9a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM4 12.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zM7.5 6a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM7 9.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm.5 2.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM10 6.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm.5 2.5a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 0-.5-.5h-1z" />
               </svg>
 
@@ -749,7 +752,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
                 setIsOpen(!open);
               }}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-person-circle" viewBox="0 0 16 16">
                 <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
                 <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
               </svg>
@@ -768,7 +771,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
             <div className="btn" onClick={() => {
               setTools(false)
             }}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-dash-circle-fill" viewBox="0 0 16 16">
+              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-dash-circle-fill" viewBox="0 0 16 16">
                 <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z" />
               </svg>
             </div>
@@ -800,7 +803,14 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
         <ProductModal onClose={handleProductModalClose} />
       )}
       {showModal && (
+        <Resizable
+        width={300}
+        height={400}
+        minConstraints={[200, 200]}
+        maxConstraints={[800, 800]}
+      >
         <TextProcess showModal={showModal} handleCloseModal={handleCloseModal} />
+        </Resizable>
       )}
       {calcModal && (
         <div style={{ position: 'absolute', top: '50%', left: '50%' }}>
@@ -814,6 +824,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
         <ToolKit />
 
       </div>
+      
       <div style={{ backgroundColor: 'rgb(37, 56, 81)' }} className="py-2 px-4  d-none d-lg-block">
 
         <div className="d-flex align-items-center py-1">
@@ -986,7 +997,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
                 setCalcModal(true)
               }}
             >
-             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-calculator-fill" viewBox="0 0 16 16">
+             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" className="bi bi-calculator-fill" viewBox="0 0 16 16">
   <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm2 .5v2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5zm0 4v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zM4.5 9a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM4 12.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zM7.5 6a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM7 9.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm.5 2.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM10 6.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm.5 2.5a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 0-.5-.5h-1z"/>
 </svg>
 
