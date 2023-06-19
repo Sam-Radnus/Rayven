@@ -7,26 +7,25 @@ const PaymentPage = () => {
     const [products,setProducts]=useState([]);
     const [productState, setProductState] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
-  const handleQuantityChange = (index, event) => {
+    const handleQuantityChange = (index, event) => {
+      const newQuantity = parseInt(event.target.value, 10); // Parse new quantity to an integer
     
-    const newQuantity = event.target.value;
+      const newTotalPrice = products[index].price * newQuantity;
     
-    const newTotalPrice = products[index].price * newQuantity;
-    console.log(newTotalPrice);
-    console.log(products[index].price);
-    console.log(productState[index].price);
-    console.log(event.target.value)
-    setProductState(prevState => {
-      const newState = [...prevState];
-      newState[index] = { quantity: newQuantity, price: newTotalPrice };
-      return newState;
-    });
-    let newFinal = productState.reduce((total, product) => {
-      return total + product.price * product.quantity;
-    }, 0);
+      setProductState(prevState => {
+        const newState = [...prevState];
+        newState[index] = { quantity: newQuantity, price: newTotalPrice };
+        return newState;
+      });
     
-    setTotalPrice(newFinal);
-  };
+      
+      let newFinal = productState.reduce((total, product) => {
+        return parseInt(total) + parseInt(product.price * product.quantity);
+      }, 0);
+      
+      setTotalPrice(newFinal);
+    };
+    
   useEffect(() => {
     let newFinal = productState.reduce((total, product) => {
       return total + product.price;
@@ -55,7 +54,7 @@ const PaymentPage = () => {
             const initialProductState = response.data.products.products.map(product => {
                 return {
                   quantity: 0,
-                  price: product.price
+                  price: 0
                 };
               });
               console.log(initialProductState);
@@ -204,7 +203,7 @@ const PaymentPage = () => {
 
                 <div class="d-flex justify-content-between" style={{fontWeight: 500}}>
                   <p class="mb-0">Shipping</p>
-                  <p class="mb-0">${totalPrice>0?(totalPrice*0.02):0}</p>
+                  <p class="mb-0">${totalPrice>0?parseInt(totalPrice*0.02):0}</p>
                 </div>
 
                
@@ -219,7 +218,7 @@ const PaymentPage = () => {
                     navigate('/Success');
                   }} class="d-flex justify-content-between">
                     <span>Checkout</span>
-                    <span>${totalPrice>0?parseInt(totalPrice +(totalPrice*0.02)):0}</span>
+                    <span>${totalPrice>0?parseInt(totalPrice +parseInt(totalPrice*0.02)):0}</span>
                   </div>
                 </button>
 

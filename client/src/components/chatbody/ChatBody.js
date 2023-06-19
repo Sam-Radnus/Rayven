@@ -625,7 +625,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
         "id":product.id,
         "price":product.price
       })
-      //console.log(change);
+      console.log(change);
     }
     
     function sendProduct(productIndex) {
@@ -657,7 +657,7 @@ const ChatBody = ({ match, currentChattingMember, setOnlineUserList }) => {
       }
       </script>
   </div>`;
-      //console.log(message);
+      console.log(message);
 
       
       setProductStates(newProductStates);
