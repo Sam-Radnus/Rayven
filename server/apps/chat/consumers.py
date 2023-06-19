@@ -108,8 +108,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'image_data': 'http://127.0.0.1:8000/'+imgdata if imgdata!=None else None,
             'userImage': userObj.image.url,
             'userName': userObj.first_name + " " + userObj.last_name,
-            'timestamp': str(chatMessageObj.timestamp),
-            
+            'timestamp': str(chatMessageObj.timestamp)       
         }
         print(data)
         # Return the chat message data
