@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect } from 'react';
 import './Sidebar.css'
 function Sidebar({userInfo}) {
   const [isOpen, setIsOpen] = useState(false);
@@ -6,7 +6,7 @@ function Sidebar({userInfo}) {
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   }
-
+  
   return (
     <div>
       

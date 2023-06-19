@@ -1,15 +1,19 @@
+
 import React, { useState ,useEffect } from 'react'
 import axios from 'axios';
 import Draggable from 'react-draggable';
 
+import dotenv from 'dotenv';
 
 const TextProcess = ({ showModal, handleCloseModal }) => {
+  dotenv.config();
     const [action, setAction] = useState('');
     const [text, setText] = useState('');
     const [result,setResult]=useState('');
     const [width, setWidth] = useState(300);
   const [height, setHeight] = useState(400);
    const [loading,setLoading] =useState(false);
+   const [response,setResponse]=useState(false);
     const placeholder = {
         '::placeholder': {
             color: 'white'
@@ -20,9 +24,11 @@ const TextProcess = ({ showModal, handleCloseModal }) => {
 
     };
     const toHTML = (message) => {
+      if(!text || !response) return ;
+
         const tableRegex = /^(\|(?:.*?\|)+)(?:\r?\n)(\|(?:.*?\|)+)(?:\r?\n)((?::?-+:?\|)+)(?:\r?\n)((?:\|(?:.*?\|)+\r?\n)*)/gim; // table regex
         const codeRegex = /(`{3})([\s\S]*?)(\1)/gim; // code block regex
-        const lines = message.split(/\r?\n(?=\d+\. )/); // split message into lines at numbered list items
+        const lines = message?.split(/\r?\n(?=\d+\. )/); // split message into lines at numbered list items
       
         return lines
           .map((line) => {
@@ -82,31 +88,32 @@ const TextProcess = ({ showModal, handleCloseModal }) => {
     // }
     const processText = async () => {
         setLoading(true);
-        const options = {
-          method: 'POST',
-          headers: {
-            accept: 'application/json',
-            'content-type': 'application/json',
-            'X-API-KEY': ''
-          },
-          body: JSON.stringify({
-            enable_google_results: 'true',
-            enable_memory: false,
-            input_text: text
-          })
-        };
-      
+        setResponse(true);
+        let api_key=process.env.REACT_APP_API_KEY
+        console.log(api_key)
+        if(!api_key) return;
         try {
-          const response = await fetch(
-            'https://api.writesonic.com/v2/business/content/chatsonic?engine=premium',
-            options
-          );
+          const response = await fetch('https://api.openai.com/v1/engines/text-davinci-003/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${api_key}`,
+            },
+            body: JSON.stringify({
+              prompt: text,
+              max_tokens: 200, // Adjust the desired length of the response
+            }),
+          });
+    
           const data = await response.json();
-          setResult(data?.message);
+          console.log(data);
+          const { choices } = data;
+          const output = choices[0].text.trim();
+    
+          setResult(output);
         } catch (error) {
-          console.error(error);
+          console.error('Error:', error);
         }
-      
         setLoading(false);
       };
 
@@ -134,27 +141,33 @@ const TextProcess = ({ showModal, handleCloseModal }) => {
                     <div style={{ backgroundColor: "#18191B",  color: "#18191B" ,width: `${width}px`, height: `${height}px` }} className="modal-content">
                     
                         <div  className="modal-header">
-                            <h5 className="modal-title">Enter Text</h5>
+                            <h5 className="modal-title">ChatBot</h5>
                             <button type="button" className="close" onClick={handleCloseModal} aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
+                     
                         <div  className="modal-body">
-                            <div className="mb-3">
+                            <div style={{position:'relative'}} className="mb-3">
                                 <input   type="email" style={placeholder} value={text} onChange={(e)=>{ setText(e.target.value)}} className="form-control" id="exampleFormControlInput1" />
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" style={{cursor:'pointer',position:'absolute',top:'120%',right:'0%'}} onClick={()=>{
+                                  navigator.clipboard.writeText(result)
+
+                                }}class="bi bi-clipboard2-fill" viewBox="0 0 16 16">
+  <path d="M9.5 0a.5.5 0 0 1 .5.5.5.5 0 0 0 .5.5.5.5 0 0 1 .5.5V2a.5.5 0 0 1-.5.5h-5A.5.5 0 0 1 5 2v-.5a.5.5 0 0 1 .5-.5.5.5 0 0 0 .5-.5.5.5 0 0 1 .5-.5h3Z"/>
+  <path d="M3.5 1h.585A1.498 1.498 0 0 0 4 1.5V2a1.5 1.5 0 0 0 1.5 1.5h5A1.5 1.5 0 0 0 12 2v-.5c0-.175-.03-.344-.085-.5h.585A1.5 1.5 0 0 1 14 2.5v12a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 14.5v-12A1.5 1.5 0 0 1 3.5 1Z"/>
+</svg>
                             </div>
+                            
                             {loading ?
                           
                         
                             <div class="spinner-border text-light" role="status">
                               <span class="visually-hidden">Loading...</span>
                             </div>
-
-
-            
+               
                             : 
-                           <div  dangerouslySetInnerHTML={{ __html: toHTML(result) }}>
-
+                           <div style={{marginTop:'30px'}} dangerouslySetInnerHTML={{ __html: toHTML(result) }}>
                              
                            </div>
                            }
@@ -162,6 +175,7 @@ const TextProcess = ({ showModal, handleCloseModal }) => {
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" onClick={()=>{
                                 setResult('')
+                                setText('')
                             }}>
                                 Clear
                             </button>

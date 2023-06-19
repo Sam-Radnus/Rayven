@@ -56,7 +56,7 @@ class SignupSerializer(serializers.ModelSerializer):
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
             image=validated_data['image'],
-            is_shop_owner=validated_data['is_shop_owner']
+            is_shop_owner=True if validated_data['is_shop_owner'] else False
         )
         user.set_password(validated_data['password'])
         user.save()

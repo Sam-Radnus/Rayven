@@ -38,7 +38,8 @@ const getUserId = () => {
 
 const getFormatedChatUser = (chatUsers, onlineUserList) => {
   const userId = getUserId();
-  return chatUsers.reduce((acumulator, item) => {
+  if(chatUsers) {
+   return chatUsers?.reduce((acumulator, item) => {
     if (item.type === "DM" || item.type === "SELF") {
       let newResult = {};
       newResult["roomId"] = item.roomId;
@@ -59,6 +60,7 @@ const getFormatedChatUser = (chatUsers, onlineUserList) => {
     }
     return acumulator;
   }, []);
+}
 };
 
 const getActiveChatId = (match) => {

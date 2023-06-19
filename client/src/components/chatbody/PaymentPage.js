@@ -10,8 +10,12 @@ const PaymentPage = () => {
   const handleQuantityChange = (index, event) => {
     
     const newQuantity = event.target.value;
+    
     const newTotalPrice = products[index].price * newQuantity;
-    console.log(newTotalPrice)
+    console.log(newTotalPrice);
+    console.log(products[index].price);
+    console.log(productState[index].price);
+    console.log(event.target.value)
     setProductState(prevState => {
       const newState = [...prevState];
       newState[index] = { quantity: newQuantity, price: newTotalPrice };
@@ -20,11 +24,12 @@ const PaymentPage = () => {
     let newFinal = productState.reduce((total, product) => {
       return total + product.price * product.quantity;
     }, 0);
+    
     setTotalPrice(newFinal);
   };
   useEffect(() => {
     let newFinal = productState.reduce((total, product) => {
-      return total + product.price * product.quantity;
+      return total + product.price;
     }, 0);
     setTotalPrice(newFinal);
   }, [productState]);
@@ -93,7 +98,7 @@ const PaymentPage = () => {
                       style={{width: "120px"}} alt="Book"/>
                     <div class="flex-column ms-4">
                       <p class="mb-2">{product.name}</p>
-                      <p class="mb-0">Daniel Kahneman</p>
+                    
                     </div>
                   </div>
                 </th>
@@ -112,7 +117,7 @@ const PaymentPage = () => {
                     
                   </div>
                 </td>
-                <td class="align-middle">${productState[index] ? productState[index].price*productState[index].quantity:0}</td>
+                <td class="align-middle">${productState[index] ? productState[index].price:0}</td>
               </tr>
             ))  }
             </tbody>
@@ -199,14 +204,14 @@ const PaymentPage = () => {
 
                 <div class="d-flex justify-content-between" style={{fontWeight: 500}}>
                   <p class="mb-0">Shipping</p>
-                  <p class="mb-0">${(totalPrice*0.02).toFixed(2)}</p>
+                  <p class="mb-0">${totalPrice>0?(totalPrice*0.02):0}</p>
                 </div>
 
                
 
                 <div class="d-flex justify-content-between mb-4" style={{fontWeight: 500}}>
                   <p class="mb-2">Total (tax included)</p>
-                  <p class="mb-2">${totalPrice +(totalPrice*0.02)}</p>
+                  <p class="mb-2">${totalPrice>0?parseInt(totalPrice +(totalPrice*0.02)):0}</p>
                 </div>
 
                 <button type="button" class="btn btn-primary btn-block btn-lg">
@@ -214,7 +219,7 @@ const PaymentPage = () => {
                     navigate('/Success');
                   }} class="d-flex justify-content-between">
                     <span>Checkout</span>
-                    <span>${(totalPrice +(totalPrice*0.02)).toFixed(2)}</span>
+                    <span>${totalPrice>0?parseInt(totalPrice +(totalPrice*0.02)):0}</span>
                   </div>
                 </button>
 

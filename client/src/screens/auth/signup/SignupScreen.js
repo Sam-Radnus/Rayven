@@ -25,7 +25,18 @@ const SignupScreen = () => {
     Object.keys(signupData).forEach((key) => {
       formData.append(key, signupData[key]);
     });
-    formData.append("is_shop_owner", accountType==='Customer'?false:true);
+    console.log(accountType);
+    if(accountType==1){
+      console.log(false);
+
+    }
+    else{
+      console.log(true);
+    }
+    
+    formData.append("is_shop_owner", accountType==1?false:true);
+
+    
     const successSignupData = await ApiConnector.sendPostRequest(
       ApiEndpoints.SIGN_UP_URL,
       formData,
@@ -39,6 +50,7 @@ const SignupScreen = () => {
       // });
       navigate(AppPaths.LOGIN);
     }
+    
   };
 
   return (
@@ -82,7 +94,7 @@ const SignupScreen = () => {
           <div>
             <input
 
-              style={{ backgroundColor: '#344153', maxWidth: '19.5vw', overflow: 'hidden', borderRadius: '15px' }}
+              style={{ backgroundColor: '#344153', width: '19.5vw', overflow: 'hidden', borderRadius: '15px' }}
               type="file"
               name="image"
               id="validatedCustomFile"

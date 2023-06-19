@@ -123,6 +123,7 @@ def get_user_details(request):
                 'image':"http://127.0.0.1:8000/"+user.image.url if user.image else None,
                 'first_name': user.first_name,
                 'last_name': user.last_name,
+                'isShopOwner':user.is_shop_owner
             }
             return JsonResponse({'User': user_data})
         else:
@@ -130,10 +131,6 @@ def get_user_details(request):
     else:
         return JsonResponse({'Error':'Invalid Method'})
 
-@csrf_exempt
-def create_product2(request):
-     print('Hello')
-     return JsonResponse({'hello':'world'})
 
 
 @csrf_exempt

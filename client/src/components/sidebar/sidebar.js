@@ -8,14 +8,40 @@ import ApiEndpoints from "../../api/apiEndpoints";
 import CommonUtil from "../../util/commonUtil";
 import Constants from "../../lib/constants";
 import Modal from "../modal/modal";
+import axios from 'axios';
 import { ReactCalculator } from "simple-react-calculator";
 const Sidebar = (props) => {
   const navigate = useNavigate();
   const [chatUsers, setChatUsers] = useState([]); //sidebar users
   const [users, setUsers] = useState([]); //popup users
   const [isShowAddPeopleModal, setIsShowAddPeopleModal] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState({ x: 5, y: 37 });
   const [toolbar, setToolBar] = useState(true);
+  const [currentUser,setCurrentUser]=useState({})
+  const getUserDetailsforSelf = async () => {
+
+    console.warn(CommonUtil.getUserId());
+    try {
+
+      
+        const response = await axios.post(
+            "http://127.0.0.1:8000/api/v1/getUserProfile",
+            {
+
+                'user_id': `${CommonUtil.getUserId()}`
+
+            }
+        );
+
+        console.log(response)
+        setCurrentUser(response?.data?.User)
+    } catch (error) {
+        console.error(error);
+    }
+};
+useEffect(()=>{
+   getUserDetailsforSelf();
+},[])
   const redirectUserToDefaultChatRoom = (chatUsers) => {
     console.log(1);
     if (window.location.pathname === AppPaths.HOME) {
@@ -115,7 +141,7 @@ const Sidebar = (props) => {
   };
 
   const getChatListWithOnlineUser = () => {
-    let updatedChatList = chatUsers.map((user) => {
+    let updatedChatList = chatUsers?.map((user) => {
       if (props.onlineUserList.includes(user.id)) {
         user.isOnline = true;
       } else {
@@ -162,14 +188,16 @@ const Sidebar = (props) => {
                 Log Out
               </button>
             </div>
+            { currentUser?.isShopOwner &&
             <div onClick={() => {
               navigate('/products')
             }} style={{ borderRadius: '5px', cursor: 'pointer', textAlign: 'center', transition: "height 0.3s ease-in-out" }} id="add_people">
-              <svg style={{ color: '#18191B !important' }} xmlns="http://www.w3.org/2000/svg" width="26" height="26" className="bi bi-box-arrow-left" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0v2z" />
-                <path fill-rule="evenodd" d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z" />
-              </svg>
+             
+              <svg style={{ color: '#18191B !important' }} xmlns="http://www.w3.org/2000/svg" width="26" height="26"  class="bi bi-dropbox" viewBox="0 0 16 16">
+  <path d="M8.01 4.555 4.005 7.11 8.01 9.665 4.005 12.22 0 9.651l4.005-2.555L0 4.555 4.005 2 8.01 4.555Zm-4.026 8.487 4.006-2.555 4.005 2.555-4.005 2.555-4.006-2.555Zm4.026-3.39 4.005-2.556L8.01 4.555 11.995 2 16 4.555 11.995 7.11 16 9.665l-4.005 2.555L8.01 9.651Z"/>
+</svg>
             </div>
+              } 
             <div style={{ borderRadius: '5px', cursor: 'pointer', textAlign: 'center', padding: '5px', transition: "height 0.3s ease-in-out" }} id="add_people" onClick={() => {
               setToolBar(true)
             }}>
