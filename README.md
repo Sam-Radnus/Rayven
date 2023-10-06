@@ -1,5 +1,5 @@
-# django-chat
-A chatting app made with django-rest-framework, django-signal &amp; react.js
+# Rayven
+A B2C chat app made with django-rest-framework, django-signal &amp; react.js
 
 # Installation Process
 To install this app please follow this below steps:
